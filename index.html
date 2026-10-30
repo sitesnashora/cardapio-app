@@ -80,6 +80,17 @@
 .opt.on .box::after{content:"";width:8px;height:8px;border-radius:2px;background:#fff}
 .opt.on .box.r::after{border-radius:50%}
 .opt.dis{opacity:.35}
+.prod .ph .add{position:absolute;right:6px;bottom:6px;width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;font-size:1.35rem;font-weight:700;line-height:30px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+.xstick{position:sticky;top:0;height:0;z-index:6}
+.xstick .x{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.6);color:#fff;backdrop-filter:blur(4px)}
+.opt{background:var(--card);border:1px solid var(--line)!important;border-radius:14px;padding:13px 12px!important;margin-top:8px;transition:border-color .15s}
+.opt.on{border-color:var(--brand)!important}
+.box{border-color:#8a7f76!important}
+.box.c{border-radius:50%;width:26px;height:26px}
+.box.c::before{content:"+";color:#bdb3aa;font-weight:700;font-size:1.05rem;line-height:1}
+.opt.on .box.c::before{content:"✓";color:#fff;font-size:.9rem}
+.opt.on .box.c::after{display:none}
+
 .qty{display:flex;align-items:center;gap:6px;background:var(--card2);border-radius:13px;padding:4px}
 .qty button{width:38px;height:38px;border-radius:10px;font-size:1.3rem;font-weight:700}
 .qty span{min-width:22px;text-align:center;font-weight:800}
@@ -253,7 +264,7 @@ function cardProd(p) {
   return `<button class="prod ${p.ativo ? "" : "off"}" data-p="${p.id}">
     <div class="tx"><b>${esc(p.nome)}</b><p>${esc(p.desc)}</p>
       ${p.ativo ? `<span class="pr">${preco || (isFinite(minExtra) ? brl(minExtra) : "")}${temOp && preco ? "" : ""}</span>` : `<span class="esg">Esgotado</span>`}</div>
-    <div class="ph">${fotoProduto(p)}${p.tag ? `<span class="tag">${esc(p.tag)}</span>` : ""}</div></button>`;
+    <div class="ph">${fotoProduto(p)}${p.tag ? `<span class="tag">${esc(p.tag)}</span>` : ""}${p.ativo ? `<span class="add" aria-hidden="true">+</span>` : ""}</div></button>`;
 }
 
 function observarCats() {
@@ -366,7 +377,8 @@ function abrirProduto(id, editKey) {
 function renderProduto(obs) {
   const p = prodAtual;
   $("#pnProd").innerHTML = `
-    <div class="big"><div class="ph">${fotoProduto(p)}</div><button class="x" data-x="shProd" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,.55);color:#fff">✕</button></div>
+    <div class="xstick"><button class="x" data-x="shProd" aria-label="Fechar">✕</button></div>
+    <div class="big"><div class="ph">${fotoProduto(p)}</div></div>
     <div class="pbody pd">
       <h3>${esc(p.nome)}</h3><p class="ds">${esc(p.desc)}</p>${Number(p.preco) > 0 ? `<div class="bp">${brl(p.preco)}</div>` : ""}
       ${(p.grupos || []).map((g) => grupoHtml(g)).join("")}
@@ -387,7 +399,7 @@ function grupoHtml(g) {
   const sel = esc0[g.id] || [], radio = g.max === 1;
   const sub = g.min > 0 && g.min === g.max ? `Escolha ${g.max}` : g.min > 0 ? `Escolha de ${g.min} a ${g.max}` : `Escolha até ${g.max}`;
   return `<div class="grp"><div class="gh"><b>${esc(g.nome)}<small id="gs_${g.id}">${sub}</small></b><span class="req ${g.min > 0 ? "need" : ""}">${g.min > 0 ? "Obrigatório" : "Opcional"}</span></div>
-    ${g.opcoes.map((o, i) => `<button class="opt ${sel.includes(i) ? "on" : ""}" data-g="${g.id}" data-o="${i}"><span>${esc(o.nome)}</span>${o.preco > 0 ? `<em>+ ${brl(o.preco)}</em>` : ""}<i class="box ${radio ? "r" : ""}"></i></button>`).join("")}</div>`;
+    ${g.opcoes.map((o, i) => `<button class="opt ${sel.includes(i) ? "on" : ""}" data-g="${g.id}" data-o="${i}"><span>${esc(o.nome)}</span>${o.preco > 0 ? `<em>+ ${brl(o.preco)}</em>` : ""}<i class="box ${radio ? "r" : "c"}"></i></button>`).join("")}</div>`;
 }
 function escolher(gid, i) {
   const g = prodAtual.grupos.find((x) => x.id === gid); let sel = esc0[gid] || [];
