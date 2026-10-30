@@ -7,13 +7,13 @@
 <meta name="theme-color" content="#0f0d0c">
 <meta name="robots" content="noindex">
 <link rel="manifest" href="manifest-admin.json">
-<link rel="icon" href="icon.svg?v=6" type="image/svg+xml">
+<link rel="icon" href="icon.svg?v=7" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=6">
+<link rel="stylesheet" href="app.css?v=7">
 <style>
 body{background:#0c0a09}
 .top{position:sticky;top:0;z-index:20;background:rgba(12,10,9,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
@@ -138,9 +138,9 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>window.APP_PAGE = "painel";</script>
-<script src="config.js?v=6"></script>
-<script src="art.js?v=6"></script>
-<script src="store.js?v=6"></script>
+<script src="config.js?v=7"></script>
+<script src="art.js?v=7"></script>
+<script src="store.js?v=7"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
@@ -236,7 +236,7 @@ function setup() {
   let seg = "hamburgueria", cor = Store.MODELOS.hamburgueria.cor;
   const draw = () => {
     $("#root").innerHTML = `<div class="gate"><div class="gbox">
-      <img src="icon.svg?v=6" alt="" width="44" height="44" style="border-radius:12px;display:block;margin-bottom:14px">
+      <img src="icon.svg?v=7" alt="" width="44" height="44" style="border-radius:12px;display:block;margin-bottom:14px">
       <h1>Vamos montar seu cardápio</h1><p class="muted" style="margin-top:6px">Leva 1 minuto. Tudo pode ser mudado depois no painel.</p>
       <label class="f">Nome da loja</label><input class="i" id="sNome" placeholder="Ex.: Burger do Zé" value="${esc(window._sn || "")}">
       <label class="f">WhatsApp que vai receber os pedidos</label><input class="i" id="sWa" inputmode="tel" placeholder="(00) 9 0000-0000" value="${esc(window._sw || "")}">
@@ -285,7 +285,7 @@ function loginNuvem() {
   aplicarCor("#ff5a1f");
   const criar = modoLogin === "criar";
   $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center">
-    <img src="icon.svg?v=6" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto">
+    <img src="icon.svg?v=7" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto">
     <p style="font-weight:800;margin-top:10px;letter-spacing:-.01em">Cardápio Direto</p>
     <h1 style="margin-top:14px">${criar ? "Crie sua loja" : "Entrar no painel"}</h1>
     <p class="muted">${criar ? "Cardápio digital com pedidos no WhatsApp. 3 dias grátis." : "Use o e-mail e a senha da sua loja"}</p>

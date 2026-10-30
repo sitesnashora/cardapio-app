@@ -429,9 +429,9 @@ window.preencher = (tpl, o) => String(tpl || "").replace(/\{nome\}/g, (o.nome ||
 window.montarDemo = function() {
   if (Store.nuvem) return;
   let v = null; try { v = localStorage.getItem("cardapio_demo_versao"); } catch (e) {}
-  if (Store.get() && v === "3") return;
+  if (Store.get() && v === "4") return;
   if (Store.get()) Store.apagarTudo();
-  try { localStorage.setItem("cardapio_demo_versao", "3"); } catch (e) {}
+  try { localStorage.setItem("cardapio_demo_versao", "4"); } catch (e) {}
   const d = Store.criar({ nome: "Burger do Zé", segmento: "hamburgueria", whats: "5533998628718" });
   const x = Store.get();
   Object.assign(x.loja, { modo: "aberta", slogan: "Smash e artesanal na chapa", endereco: "Rua das Flores, 120 - Centro", cidade: "Mantena",
@@ -439,6 +439,7 @@ window.montarDemo = function() {
     chavePix: "pedidos@burgerdoze.com", aviso: "Esta é uma loja de demonstração. Os pedidos chegam no WhatsApp do desenvolvedor.",
     banner: { ativo: true, titulo: "Terça do Smash", texto: "Use o cupom BEMVINDO10 e ganhe 10% off" },
     capa: window.FOTO_UNSPLASH("1466978913421-dad2ebd01d17", 1200).replace("&h=1200", "&h=600"),
+    logo: window.FOTO_UNSPLASH("1568901346375-23c9450c58cd", 200),
     slides: [{ img: window.FOTO_UNSPLASH("1551782450-a2132b4ba21d", 1000).replace("&h=1000", "&h=500"), titulo: "Combo Clássico por R$ 44,90", texto: "Burger + batata + refri. Toque pra pedir", pid: (x.produtos.find((p) => p.nome === "Combo Clássico") || {}).id || "" },
              { img: window.FOTO_UNSPLASH("1607013251379-e6eecfffe234", 1000).replace("&h=1000", "&h=500"), titulo: "Terça do Smash", texto: "Duplo Cheddar com 10% off no cupom BEMVINDO10", pid: (x.produtos.find((p) => p.nome === "Duplo Cheddar") || {}).id || "" },
              { img: window.FOTO_UNSPLASH("1565299507177-b0ac66763828", 1000).replace("&h=1000", "&h=500"), titulo: "Peça sem sair de casa", texto: "Entregamos no Centro, Vila Nova e São José", pid: "" }] });

@@ -6,13 +6,13 @@
 <title>Cardápio</title>
 <meta name="theme-color" content="#0f0d0c">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg?v=6" type="image/svg+xml">
+<link rel="icon" href="icon.svg?v=7" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=6">
+<link rel="stylesheet" href="app.css?v=7">
 <style>
 .hero{position:relative;padding:18px 0 16px;background:radial-gradient(120% 120% at 100% 0%,color-mix(in srgb,var(--brand) 30%,transparent),transparent 60%),var(--bg)}
 .hrow{display:flex;gap:14px;align-items:center}
@@ -163,10 +163,10 @@ body.combarra .fab{bottom:calc(86px + env(safe-area-inset-bottom))}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>window.APP_PAGE = "cardapio";</script>
-<script src="config.js?v=6"></script>
-<script src="art.js?v=6"></script>
-<script src="store.js?v=6"></script>
-<script src="atendente.js?v=6"></script>
+<script src="config.js?v=7"></script>
+<script src="art.js?v=7"></script>
+<script src="store.js?v=7"></script>
+<script src="atendente.js?v=7"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
 let D = null;                 // dados da loja
@@ -186,12 +186,12 @@ function render() {
   D = Store.get();
   if (Store.nuvem && (!Store.lojaExiste() || !Store.situacao().ativa)) {
     document.title = D ? D.loja.nome : "Cardápio";
-    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg?v=6" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">${!Store.lojaExiste() ? "Loja não encontrada" : esc(D.loja.nome)}</h2><p class="muted" style="margin-top:6px">${!Store.lojaExiste() ? "Confira se o link está certo." : "O cardápio está temporariamente fora do ar."}</p>${Store.lojaExiste() && D && D.loja.whats ? `<a class="btn green" style="margin-top:20px" href="https://wa.me/${waNum(D.loja.whats)}" target="_blank" rel="noopener">Pedir pelo WhatsApp</a>` : ""}</div></div>`;
+    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg?v=7" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">${!Store.lojaExiste() ? "Loja não encontrada" : esc(D.loja.nome)}</h2><p class="muted" style="margin-top:6px">${!Store.lojaExiste() ? "Confira se o link está certo." : "O cardápio está temporariamente fora do ar."}</p>${Store.lojaExiste() && D && D.loja.whats ? `<a class="btn green" style="margin-top:20px" href="https://wa.me/${waNum(D.loja.whats)}" target="_blank" rel="noopener">Pedir pelo WhatsApp</a>` : ""}</div></div>`;
     $("#fab").classList.add("hidden"); renderBar(); return;
   }
   if (!D) {
     document.title = "Cardápio";
-    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg?v=6" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">Cardápio em breve</h2><p class="muted" style="margin-top:6px">Esta loja ainda está montando o cardápio. Volte daqui a pouco!</p></div></div>`;
+    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg?v=7" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">Cardápio em breve</h2><p class="muted" style="margin-top:6px">Esta loja ainda está montando o cardápio. Volte daqui a pouco!</p></div></div>`;
     return;
   }
   const L = D.loja, st = statusLoja(L);
