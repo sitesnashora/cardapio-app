@@ -1,0 +1,39 @@
+rules_version = '2';
+// Regras do banco: qualquer pessoa vê o cardápio e faz pedido,
+// só o dono da loja muda o cardápio e vê a lista de pedidos.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /lojas/{loja} {
+      function dono() {
+        return request.auth != null
+          && get(/databases/$(database)/documents/lojas/$(loja)).data.ownerUid == request.auth.uid;
+      }
+
+      allow read: if true;
+      // o primeiro acesso do dono cria a loja e vira o dono
+      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
+      // só o dono altera, e ninguém troca o dono
+      allow update: if request.auth != null && resource.data.ownerUid == request.auth.uid
+                    && request.resource.data.ownerUid == resource.data.ownerUid;
+      allow delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+
+      match /imagens/{img} {
+        allow read: if true;
+        allow write: if dono();
+      }
+
+      match /pedidos/{pedido} {
+        // o freguês acompanha o próprio pedido pelo código (não lista os outros)
+        allow get: if true;
+        allow list: if dono();
+        // qualquer um cria pedido novo, sempre com status "novo"
+        allow create: if request.resource.data.status == 'novo'
+                      && request.resource.data.total is number
+                      && request.resource.data.itens is list
+                      && request.resource.data.itens.size() > 0
+                      && request.resource.data.itens.size() < 60;
+        allow update, delete: if dono();
+      }
+    }
+  }
+}
