@@ -172,7 +172,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem;padding-block:24px 
       <p>O cliente abre seu cardápio no celular, monta o pedido e ele chega pronto no seu WhatsApp, com endereço, troco e observações. Você paga um valor fixo por mês, venda o quanto vender.</p>
       <div class="ctas"><a class="btn pri" href="#planos">Ver planos</a><a class="btn sec" href="./" target="_blank" rel="noopener">Ver demonstração</a></div>
       <p style="margin-top:12px;font-size:.88rem;color:#b9bec5">Quer ver o lado da loja? <a href="admin.html" target="_blank" rel="noopener" style="color:#fff;font-weight:700">Abrir painel de exemplo</a> (senha 1234)</p>
-      <div class="selos"><span>1º mês grátis</span><span>Sem taxa de instalação</span><span>Sem fidelidade</span></div>
+      <div class="selos"><span>3 dias grátis</span><span>Sem taxa de instalação</span><span>Sem fidelidade</span></div>
     </div>
     <div class="fone" aria-hidden="true">
       <div class="lh"><span class="lg">B</span><div><b>Burger do Zé</b><div class="ab">● Aberto até 23:00</div></div></div>
@@ -227,7 +227,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem;padding-block:24px 
 </div></section>
 
 <section id="planos" style="background:var(--surf);border-block:1px solid var(--line)"><div class="in">
-  <div class="sh"><span class="eyebrow">Planos</span><h2>Valor fixo. Zero comissão.</h2><p>Todos com o 1º mês grátis, sem taxa de instalação e sem fidelidade. Eu monto seu cardápio pra você.</p></div>
+  <div class="sh"><span class="eyebrow">Planos</span><h2>Valor fixo. Zero comissão.</h2><p>Todos com 3 dias grátis pra testar, sem taxa de instalação e sem fidelidade. Eu monto seu cardápio pra você.</p></div>
   <div class="planos">
     <div class="plano">
       <h3>Essencial</h3>
@@ -278,7 +278,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem;padding-block:24px 
     <details><summary>Preciso sair do iFood?</summary><p>Não. Muita loja usa os dois: mantém o iFood pra ser encontrada e manda os clientes que já conhecem a loja pedir pelo link próprio, sem comissão.</p></details>
     <details><summary>O cliente precisa baixar aplicativo?</summary><p>Não. Ele abre um link no navegador. Se quiser, instala na tela do celular com um toque e fica igual a um app.</p></details>
     <details><summary>Quem monta o cardápio?</summary><p>No plano Pro eu monto tudo com você: produtos, fotos, opções, bairros e taxas. Depois você muda o que quiser pelo painel.</p></details>
-    <details><summary>Como funciona o mês grátis?</summary><p>Você usa 30 dias sem pagar nada. Se gostar, paga a mensalidade pelo Pix e manda o comprovante. Se não gostar, é só avisar.</p></details>
+    <details><summary>Como funciona o teste grátis?</summary><p>Você usa 3 dias sem pagar nada. Se gostar, paga a mensalidade pelo Pix e manda o comprovante. Se não gostar, é só avisar.</p></details>
     <details><summary>O dinheiro do pedido passa por você?</summary><p>Não. O cliente paga direto pra sua loja, no Pix, dinheiro ou cartão na entrega. Eu só cobro a mensalidade.</p></details>
   </div>
 </div></section>
@@ -301,7 +301,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem;padding-block:24px 
     <p class="chave">Chave Pix (e-mail): samuelijoi42@gmail.com · Nubank</p>
     <div class="etapa"><b class="n">2</b><p>Envie o comprovante no WhatsApp<small>Eu ativo seu plano e começo a montar seu cardápio.</small></p></div>
     <a class="btn wa" id="waComp" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>
-    <p class="chave" style="margin-top:12px">Quer usar o mês grátis antes? <a id="waGratis" target="_blank" rel="noopener" style="font-weight:700">Começar sem pagar</a></p>
+    <p class="chave" style="margin-top:12px">Quer testar 3 dias grátis antes? <a id="waGratis" target="_blank" rel="noopener" style="font-weight:700">Começar sem pagar</a></p>
   </div>
 </div>
 
@@ -321,7 +321,7 @@ function calc() {
   $("#fatV").textContent = brl(f).replace(",00", "");
   $("#pctV").textContent = Math.round(pct * 100) + "%";
   $("#cCom").textContent = brl(com); $("#cTot").textContent = brl(tot); $("#cSalva").textContent = brl(salva);
-  $("#cEco").textContent = eco > 0 ? `Você fica com ${brl(eco)} a mais por mês (${brl(eco * 12)} no ano)` : "Com esse volume, comece pelo plano Essencial ou pelo mês grátis.";
+  $("#cEco").textContent = eco > 0 ? `Você fica com ${brl(eco)} a mais por mês (${brl(eco * 12)} no ano)` : "Com esse volume, comece pelo plano Essencial ou pelo teste grátis.";
 }
 $("#fat").oninput = calc; $("#pct").oninput = calc; calc();
 
@@ -333,7 +333,7 @@ document.querySelectorAll("[data-plano]").forEach((b) => b.onclick = () => {
   $("#pixcc").value = code; $("#cpOk").hidden = true;
   $("#qr").innerHTML = `<img src="qr-${plano.toLowerCase()}.png" alt="QR Code Pix do plano ${plano}" width="200" height="200">`;
   $("#waComp").href = wa(`Olá Samuel! Paguei o plano ${plano} do Cardápio Direto (${brl(valor)}). Segue o comprovante:`);
-  $("#waGratis").href = wa(`Olá Samuel! Quero começar o mês grátis do plano ${plano} do Cardápio Direto.`);
+  $("#waGratis").href = wa(`Olá Samuel! Quero testar 3 dias grátis o plano ${plano} do Cardápio Direto.`);
   $("#ov").hidden = false; document.body.style.overflow = "hidden";
 });
 const fecha = () => { $("#ov").hidden = true; document.body.style.overflow = ""; };
