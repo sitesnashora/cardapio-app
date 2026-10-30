@@ -80,18 +80,27 @@ function login() {
     <label class="f">Senha</label><input class="i" id="se" type="password" autocomplete="current-password">
     <p class="err hidden" id="er"></p>
     <button class="btn full" id="go" style="margin-top:16px">Entrar</button>
-    <button class="btn full ghost" id="cr" style="margin-top:10px">Primeiro acesso: criar conta</button></div></div>`;
+    <button class="btn full ghost" id="cr" style="margin-top:10px">Primeiro acesso: criar conta</button>
+    <button class="mini" id="esq" style="margin-top:14px">Esqueci a senha</button>
+    <p class="hint" id="okEsq" style="display:none;color:#6fe3a0">Pronto! Abra seu e-mail e clique no link pra criar uma senha nova. Depois volte aqui e entre.</p></div></div>`;
   const er = (m) => { $("#er").textContent = m; $("#er").classList.remove("hidden"); };
   const tr = (e) => { const c = (e && e.code) || ""; return c.includes("email-already") ? "Esse e-mail já tem conta. Use Entrar." : c.includes("weak") ? "Senha com no mínimo 6 caracteres." : c.includes("invalid") || c.includes("wrong") || c.includes("not-found") ? "E-mail ou senha incorretos." : "Não deu certo."; };
   const val = () => { const em = $("#em").value.trim(), se = $("#se").value; if (!em || se.length < 6) { er("Preencha e-mail e senha (mínimo 6)."); return null; } if (!(window.APP_CONFIG.masters || []).includes(em.toLowerCase())) { er("Esse e-mail não está na lista de administradores."); return null; } return [em, se]; };
   $("#go").onclick = async () => { const v = val(); if (v) try { await Store.entrar(...v); } catch (e) { er(tr(e)); } };
   $("#cr").onclick = async () => { const v = val(); if (v) try { await Store.criarConta(...v); } catch (e) { er(tr(e)); } };
+  $("#esq").onclick = async () => {
+    const em = $("#em").value.trim();
+    if (!em) return er("Digite seu e-mail no campo de cima e toque de novo em Esqueci a senha.");
+    try { await Store.resetSenha(em); $("#er").classList.add("hidden"); $("#okEsq").style.display = "block"; }
+    catch (e) { er("Não consegui enviar. Confira o e-mail e tente de novo."); }
+  };
 }
 function verificar() {
-  $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center"><h1>Confirme seu e-mail</h1>
-    <p class="muted" style="margin-top:8px">Por segurança, o painel mestre só abre com e-mail confirmado. Enviamos um link pra <b>${esc(Store.usuario().email)}</b>.</p>
+  $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center"><h1>Falta confirmar seu e-mail</h1>
+    <p class="muted" style="margin-top:8px">Sua conta foi criada ✅ Por segurança, o painel só abre depois de confirmar o e-mail <b>${esc(Store.usuario().email)}</b>.</p>
+    <div class="card" style="text-align:left;font-size:.92rem;line-height:1.7">1. Abra o seu Gmail<br>2. Procure o e-mail <b>"Verifique seu e-mail"</b> (olhe também em Spam ou Promoções)<br>3. Clique no link dentro dele<br>4. Volte aqui e toque em <b>Já confirmei</b></div>
     <button class="btn full" id="ja" style="margin-top:16px">Já confirmei</button>
-    <button class="btn full ghost" id="re" style="margin-top:10px">Reenviar e-mail</button>
+    <button class="btn full ghost" id="re" style="margin-top:10px">Não chegou? Enviar de novo</button>
     <button class="mini" id="sa" style="margin-top:12px">Sair</button></div></div>`;
   $("#ja").onclick = async () => { await Store.recarregarUsuario(); if (Store.souMaster()) painel(); else toast("Ainda não confirmado. Veja sua caixa de entrada e o spam."); };
   $("#re").onclick = async () => { try { await Store.verificarEmail(); toast("E-mail enviado"); } catch (e) { toast("Espere um pouco e tente de novo"); } };
