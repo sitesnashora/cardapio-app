@@ -200,6 +200,7 @@ function pedirTexto(titulo, ph = "", ok = "Criar") {
   });
 }
 
+const DEMO = () => !!(window.APP_CONFIG && window.APP_CONFIG.demo) && !Store.nuvem;
 const PRO = () => (window.APP_CONFIG && window.APP_CONFIG.plano) !== "essencial";
 const bloqueio = (o) => `<div class="card" style="text-align:center;padding:22px"><b>🔒 ${o}</b><p class="muted" style="margin-top:6px;font-size:.88rem">Disponível no plano Pro. Fale com o suporte pra liberar.</p></div>`;
 
@@ -299,6 +300,7 @@ function app() {
   $("#root").innerHTML = `
   <header class="top"><div class="wrap"><div style="min-width:0"><h1 id="tNome"></h1><small id="tSub">Painel da loja</small></div>
     <button class="stbtn" id="stBtn"><i></i><span></span></button></div></header>
+  ${DEMO() ? `<div style="background:color-mix(in srgb,var(--warn) 16%,transparent);color:#ffd27a;font-size:.8rem;font-weight:600;text-align:center;padding:8px 16px">Painel de demonstração · o que você mudar fica só neste celular</div>` : ""}
   <main class="wrap" id="main"></main>
   <nav class="nav">
     ${[["pedidos", "Pedidos", '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],
@@ -567,7 +569,7 @@ function renderLoja() {
   </div>
 
   <div class="secT"><h2>Contato</h2></div><div class="card">
-    ${I("whats", "WhatsApp que recebe os pedidos", "(00) 9 0000-0000", 'inputmode="tel"')}${I("endereco", "Endereço da loja", "Rua, número - bairro")}${I("cidade", "Cidade", "Usada no mapa das entregas")}${I("instagram", "Instagram", "@sualoja")}
+    ${I("whats", "WhatsApp que recebe os pedidos", "(00) 9 0000-0000", DEMO() ? 'inputmode="tel" readonly style="opacity:.6"' : 'inputmode="tel"')}${DEMO() ? `<p class="hint">Na demonstração o WhatsApp não pode ser trocado.</p>` : ""}${I("endereco", "Endereço da loja", "Rua, número - bairro")}${I("cidade", "Cidade", "Usada no mapa das entregas")}${I("instagram", "Instagram", "@sualoja")}
   </div>
 
   <div class="secT"><h2>Horário de funcionamento</h2></div><div class="card">
@@ -632,9 +634,9 @@ function renderLoja() {
     <div class="qr" id="qr"></div><p class="hint">QR code pra imprimir e colar no balcão ou na embalagem.</p>
   </div>
 
-  <div class="secT"><h2>Sistema</h2></div><div class="card">
+  ${DEMO() ? "" : `<div class="secT"><h2>Sistema</h2></div><div class="card">
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="mini" id="bkExp">⬇️ Baixar backup</button><button class="mini" id="bkImp">⬆️ Restaurar backup</button><button class="mini red" id="limpaPed">Limpar pedidos</button><button class="mini red" id="zerar">Apagar tudo e recomeçar</button></div>
-  </div>
+  </div>`}
   <div style="height:70px"></div>`;
   const m = $("#main");
   m.querySelectorAll("[data-b]").forEach((i) => i.oninput = i.onchange = () => { let v = i.value; if (["pedidoMinimo", "taxaFixa"].includes(i.dataset.b)) v = num(v); setP(F, i.dataset.b, v); marcar(); if (i.dataset.b === "nome") { const lg = m.querySelector(".lg"); if (lg && !F.logo) lg.textContent = v[0] || "?"; } });
@@ -660,6 +662,7 @@ function renderLoja() {
   m.querySelectorAll("[data-sl]").forEach((i) => i.oninput = i.onchange = () => { const [x, k] = i.dataset.sl.split("."); F.slides[+x][k] = i.value; marcar(); });
   $("#cpy").onclick = async () => { try { await navigator.clipboard.writeText(link); toast("Link copiado"); } catch (e) { $("#lnk").select(); toast("Selecione e copie o link"); } };
   try { if (window.QRCode) new QRCode($("#qr"), { text: link, width: 150, height: 150 }); else $("#qr").classList.add("hidden"); } catch (e) { $("#qr").classList.add("hidden"); }
+  if (!$("#bkExp")) return;
   $("#bkExp").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([Store.exportar()], { type: "application/json" })); a.download = `backup-${(D.loja.nome || "loja").toLowerCase().replace(/\W+/g, "-")}-${new Date().toISOString().slice(0, 10)}.json`; a.click(); toast("Backup baixado"); };
   $("#bkImp").onclick = importar;
   $("#limpaPed").onclick = async () => { if (await confirmar("Apagar todos os pedidos? O cardápio continua.", "Apagar pedidos")) { Store.limparPedidos(); toast("Pedidos apagados"); } };
