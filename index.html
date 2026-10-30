@@ -186,12 +186,12 @@ function render() {
   D = Store.get();
   if (Store.nuvem && (!Store.lojaExiste() || !Store.situacao().ativa)) {
     document.title = D ? D.loja.nome : "Cardápio";
-    $("#root").innerHTML = `<div class="setup"><div><div class="logo" style="margin:0 auto">🍽️</div><h2 style="margin-top:16px">${!Store.lojaExiste() ? "Loja não encontrada" : esc(D.loja.nome)}</h2><p class="muted" style="margin-top:6px">${!Store.lojaExiste() ? "Confira se o link está certo." : "O cardápio está temporariamente fora do ar."}</p>${Store.lojaExiste() && D && D.loja.whats ? `<a class="btn green" style="margin-top:20px" href="https://wa.me/${waNum(D.loja.whats)}" target="_blank" rel="noopener">Pedir pelo WhatsApp</a>` : ""}</div></div>`;
+    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">${!Store.lojaExiste() ? "Loja não encontrada" : esc(D.loja.nome)}</h2><p class="muted" style="margin-top:6px">${!Store.lojaExiste() ? "Confira se o link está certo." : "O cardápio está temporariamente fora do ar."}</p>${Store.lojaExiste() && D && D.loja.whats ? `<a class="btn green" style="margin-top:20px" href="https://wa.me/${waNum(D.loja.whats)}" target="_blank" rel="noopener">Pedir pelo WhatsApp</a>` : ""}</div></div>`;
     $("#fab").classList.add("hidden"); renderBar(); return;
   }
   if (!D) {
     document.title = "Cardápio";
-    $("#root").innerHTML = `<div class="setup"><div><div class="logo" style="margin:0 auto">🍽️</div><h2 style="margin-top:16px">Cardápio em breve</h2><p class="muted" style="margin-top:6px">Esta loja ainda está montando o cardápio. Volte daqui a pouco!</p></div></div>`;
+    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">Cardápio em breve</h2><p class="muted" style="margin-top:6px">Esta loja ainda está montando o cardápio. Volte daqui a pouco!</p></div></div>`;
     return;
   }
   const L = D.loja, st = statusLoja(L);

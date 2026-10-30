@@ -236,6 +236,7 @@ function setup() {
   let seg = "hamburgueria", cor = Store.MODELOS.hamburgueria.cor;
   const draw = () => {
     $("#root").innerHTML = `<div class="gate"><div class="gbox">
+      <img src="icon.svg" alt="" width="44" height="44" style="border-radius:12px;display:block;margin-bottom:14px">
       <h1>Vamos montar seu cardápio</h1><p class="muted" style="margin-top:6px">Leva 1 minuto. Tudo pode ser mudado depois no painel.</p>
       <label class="f">Nome da loja</label><input class="i" id="sNome" placeholder="Ex.: Burger do Zé" value="${esc(window._sn || "")}">
       <label class="f">WhatsApp que vai receber os pedidos</label><input class="i" id="sWa" inputmode="tel" placeholder="(00) 9 0000-0000" value="${esc(window._sw || "")}">
@@ -284,7 +285,8 @@ function loginNuvem() {
   aplicarCor("#ff5a1f");
   const criar = modoLogin === "criar";
   $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center">
-    <div class="upl" style="justify-content:center"><div class="lg" style="color:var(--brand)">🍽️</div></div>
+    <img src="icon.svg" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto">
+    <p style="font-weight:800;margin-top:10px;letter-spacing:-.01em">Cardápio Direto</p>
     <h1 style="margin-top:14px">${criar ? "Crie sua loja" : "Entrar no painel"}</h1>
     <p class="muted">${criar ? "Cardápio digital com pedidos no WhatsApp. 3 dias grátis." : "Use o e-mail e a senha da sua loja"}</p>
     <div class="seg" style="margin-top:16px"><button data-ml="criar" class="${criar ? "on" : ""}">Criar loja</button><button data-ml="entrar" class="${criar ? "" : "on"}">Já tenho conta</button></div>

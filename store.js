@@ -109,10 +109,29 @@
     }
   };
 
+  // fotos reais de exemplo (Unsplash, uso livre)
+  const FOTO = (id, w = 600) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&h=${w}&q=72`;
+  const FOTOS = {
+    "Clássico da Casa": "1568901346375-23c9450c58cd", "Bacon Supremo": "1586190848861-99aa4a171e90",
+    "Duplo Cheddar": "1607013251379-e6eecfffe234", "Chicken Crispy": "1610440042657-612c34d95e9f",
+    "Smash Simples": "1571091718767-18b5b1457add", "Combo Clássico": "1561758033-d89a9ad46330",
+    "Combo Casal": "1594212699903-ec8a3eca50f5", "Batata Rústica": "1630384060421-cb20d0e0649d",
+    "Batata Cheddar e Bacon": "1518013431117-eb1465fa5752", "Onion Rings": "1639024471283-03518883512d",
+    "Refrigerante lata": "1581636625402-29b2a704ef13", "Refrigerante 2 litros": "1629186235045-80d4147d90dc",
+    "Suco natural 500ml": "1600271886742-f049cd451bba", "Brownie com sorvete": "1515037893149-de7f840978e2",
+    "Milkshake 400ml": "1572490122747-3968b75cc699", "X-Tudo": "1572802419224-296b0aeee0d9",
+    "Calabresa": "1628840042765-356cda07504e", "Mussarela": "1513104890138-7c749659a591",
+    "Frango com Catupiry": "1565299624946-b28f40a0ae38", "Portuguesa": "1604382354936-07c5d9983bd3",
+    "Quatro Queijos": "1593504049359-74330189a345",
+    "Açaí 300ml": "1771371000586-33abd2ce9e23", "Açaí 500ml": "1771371000586-33abd2ce9e23", "Açaí 700ml": "1771371000586-33abd2ce9e23", "Barca 1kg": "1771371000586-33abd2ce9e23"
+  };
+  window.FOTO_UNSPLASH = FOTO;
+
   function criarLoja({ nome, segmento, whats, cor }) {
     const m = MODELOS[segmento] || MODELOS.outro;
     const categorias = m.cats.map((n) => ({ id: uid(), nome: n }));
     const produtos = m.prods(categorias.map((c) => c.id));
+    produtos.forEach((p) => { if (FOTOS[p.nome]) p.foto = FOTO(FOTOS[p.nome]); });
     const dia = (d, a, f, at = true) => ({ d, abre: a, fecha: f, ativo: at });
     return {
       versao: 1,
@@ -408,14 +427,20 @@ window.preencher = (tpl, o) => String(tpl || "").replace(/\{nome\}/g, (o.nome ||
 
 // Loja de exemplo (só quando APP_CONFIG.demo = true e ainda não há cardápio)
 window.montarDemo = function() {
-  if (Store.nuvem || Store.get()) return;
+  if (Store.nuvem) return;
+  let v = null; try { v = localStorage.getItem("cardapio_demo_versao"); } catch (e) {}
+  if (Store.get() && v === "3") return;
+  if (Store.get()) Store.apagarTudo();
+  try { localStorage.setItem("cardapio_demo_versao", "3"); } catch (e) {}
   const d = Store.criar({ nome: "Burger do Zé", segmento: "hamburgueria", whats: "5533998628718" });
   const x = Store.get();
   Object.assign(x.loja, { modo: "aberta", slogan: "Smash e artesanal na chapa", endereco: "Rua das Flores, 120 - Centro", cidade: "Mantena",
     taxas: [{ bairro: "Centro", valor: 5 }, { bairro: "Vila Nova", valor: 6 }, { bairro: "São José", valor: 7 }],
     chavePix: "pedidos@burgerdoze.com", aviso: "Esta é uma loja de demonstração. Os pedidos chegam no WhatsApp do desenvolvedor.",
     banner: { ativo: true, titulo: "Terça do Smash", texto: "Use o cupom BEMVINDO10 e ganhe 10% off" },
-    slides: [{ img: null, titulo: "Combo Clássico por R$ 44,90", texto: "Burger + batata + refri. Toque pra pedir", pid: (x.produtos.find((p) => p.nome === "Combo Clássico") || {}).id || "" },
-             { img: null, titulo: "Peça sem sair de casa", texto: "Entregamos no Centro, Vila Nova e São José", pid: "" }] });
+    capa: window.FOTO_UNSPLASH("1466978913421-dad2ebd01d17", 1200).replace("&h=1200", "&h=600"),
+    slides: [{ img: window.FOTO_UNSPLASH("1551782450-a2132b4ba21d", 1000).replace("&h=1000", "&h=500"), titulo: "Combo Clássico por R$ 44,90", texto: "Burger + batata + refri. Toque pra pedir", pid: (x.produtos.find((p) => p.nome === "Combo Clássico") || {}).id || "" },
+             { img: window.FOTO_UNSPLASH("1607013251379-e6eecfffe234", 1000).replace("&h=1000", "&h=500"), titulo: "Terça do Smash", texto: "Duplo Cheddar com 10% off no cupom BEMVINDO10", pid: (x.produtos.find((p) => p.nome === "Duplo Cheddar") || {}).id || "" },
+             { img: window.FOTO_UNSPLASH("1565299507177-b0ac66763828", 1000).replace("&h=1000", "&h=500"), titulo: "Peça sem sair de casa", texto: "Entregamos no Centro, Vila Nova e São José", pid: "" }] });
   Store.save(x);
 };
