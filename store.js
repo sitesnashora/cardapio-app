@@ -7,7 +7,7 @@
 //  Firebase, sem mudar as telas.
 // =====================================================
 (function () {
-  const LOJA_ID = (window.APP_CONFIG && window.APP_CONFIG.lojaId) || "minhaloja";
+  let LOJA_ID = "demo";
   const K = (k) => `cardapio_${LOJA_ID}_${k}`;
   const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -148,9 +148,15 @@
 
   // ======================================================
   //  MODO DEMO (aparelho) x MODO NUVEM (Firebase grátis)
+  //  Demo: cardápio sem ?l= e painel com ?demo
   // ======================================================
   const CFG = window.APP_CONFIG || {};
-  const NUVEM = !!(CFG.firebase && CFG.firebase.apiKey && window.firebase);
+  const Q = new URLSearchParams(location.search);
+  const PAGINA = window.APP_PAGE || "cardapio";
+  const QUER_DEMO = PAGINA === "cardapio" ? !Q.get("l") : PAGINA === "painel" ? Q.has("demo") : false;
+  const NUVEM = !QUER_DEMO && !!(CFG.firebase && CFG.firebase.apiKey && window.firebase);
+  const MASTERS = (CFG.masters || []).map((e) => e.toLowerCase());
+  const DIA = 864e5;
 
   function read(k, def) { try { const v = localStorage.getItem(K(k)); return v ? JSON.parse(v) : def; } catch (e) { return def; } }
   function write(k, v) {
@@ -162,8 +168,8 @@
   const erro = (m) => { console.warn(m); erroL.forEach((f) => { try { f(m); } catch (e) {} }); };
   window.addEventListener("storage", (e) => { if (!NUVEM && e.key && e.key.startsWith(K(""))) emit(); });
 
-  // ---------- imagens: ficam em documentos separados na nuvem ----------
-  const C = { dados: null, pedidos: [], imgs: {}, user: null };
+  // ---------- imagens ficam em documentos separados na nuvem ----------
+  const C = { dados: null, assinatura: null, owner: null, existe: false, pedidos: [], imgs: {}, user: null, minhaLoja: undefined, vistos: {} };
   const hash = (str) => { let h = 5381; for (let i = 0; i < str.length; i += 7) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36) + str.length.toString(36); };
   function extrairImgs(d) {
     const novas = {};
@@ -178,19 +184,39 @@
   let db = null, auth = null, lojaRef = null, pronto = false;
   const prontoCbs = [];
   function marcarPronto() { if (pronto) return; pronto = true; prontoCbs.splice(0).forEach((f) => f()); }
-  let unsubPed = null;
+  let subs = [], unsubPed = null;
+  const limparSubs = () => { subs.forEach((u) => { try { u(); } catch (e) {} }); subs = []; if (unsubPed) { unsubPed(); unsubPed = null; } };
+
+  function usarLoja(id, cb) {
+    limparSubs(); LOJA_ID = id; C.dados = null; C.assinatura = null; C.owner = null; C.existe = false; C.pedidos = []; C.imgs = {};
+    lojaRef = db.collection("lojas").doc(id);
+    let a = false, b = false; const fim = () => { if (a && b) { cb && cb(); cb = null; } };
+    subs.push(lojaRef.onSnapshot((snap) => {
+      const d = snap.exists ? snap.data() : null;
+      C.existe = !!d; C.dados = d ? d.dados : null; C.owner = d ? d.ownerUid : null; C.assinatura = d ? d.assinatura || null : null;
+      a = true; fim(); emit();
+    }, () => { erro("Sem conexão com o servidor."); a = true; fim(); }));
+    subs.push(lojaRef.collection("imagens").onSnapshot((qs) => { qs.forEach((doc) => C.imgs[doc.id] = doc.data().d); b = true; fim(); emit(); }, () => { b = true; fim(); }));
+  }
 
   if (NUVEM) {
     try {
       firebase.initializeApp(CFG.firebase);
       db = firebase.firestore(); auth = firebase.auth();
-      lojaRef = db.collection("lojas").doc(LOJA_ID);
-      let a = false, b = false;
-      lojaRef.onSnapshot((snap) => { C.dados = snap.exists ? snap.data().dados : null; C.owner = snap.exists ? snap.data().ownerUid : null; a = true; if (a && b) marcarPronto(); emit(); },
-        (e) => { erro("Sem conexão com o servidor."); a = true; if (b) marcarPronto(); });
-      lojaRef.collection("imagens").onSnapshot((qs) => { qs.forEach((doc) => C.imgs[doc.id] = doc.data().d); b = true; if (a && b) marcarPronto(); emit(); },
-        () => { b = true; if (a) marcarPronto(); });
-      auth.onAuthStateChanged((u) => { C.user = u; if (unsubPed) { unsubPed(); unsubPed = null; } C.pedidos = []; emit(); });
+      if (PAGINA === "cardapio") {
+        usarLoja(String(Q.get("l")).toLowerCase().replace(/[^a-z0-9-]/g, ""), marcarPronto);
+        auth.onAuthStateChanged((u) => { C.user = u; });
+      } else {
+        auth.onAuthStateChanged(async (u) => {
+          C.user = u; limparSubs(); C.minhaLoja = undefined; C.dados = null;
+          if (u && PAGINA === "painel") {
+            try { const doc = await db.collection("usuarios").doc(u.uid).get(); C.minhaLoja = doc.exists ? doc.data().loja : null; }
+            catch (e) { C.minhaLoja = null; erro("Não consegui carregar sua conta."); }
+            if (C.minhaLoja) return usarLoja(C.minhaLoja, () => { marcarPronto(); emit(); });
+          }
+          marcarPronto(); emit();
+        });
+      }
     } catch (e) { console.error(e); erro("Não consegui ligar no servidor."); marcarPronto(); }
   } else {
     pronto = true;
@@ -201,13 +227,21 @@
     C.dados = limpo; emit();
     const lote = db.batch();
     Object.entries(novas).forEach(([id, v]) => lote.set(lojaRef.collection("imagens").doc(id), { d: v }));
-    lote.set(lojaRef, { dados: limpo, ownerUid: C.owner || (C.user && C.user.uid), atualizado: Date.now() });
+    lote.update(lojaRef, { dados: limpo, atualizado: Date.now() });
     return lote.commit().catch((e) => { console.error(e); erro(/permission/i.test(e.message) ? "Você não tem permissão pra mudar esta loja." : /exceeds|too large|size/i.test(e.message) ? "Imagem grande demais. Use uma foto menor." : "Não salvou. Verifique a internet."); });
   }
   const numPedido = () => Math.floor(Date.now() / 1000) % 100000;
 
+  // situação da assinatura: { plano: 'teste'|'essencial'|'pro', ate: ms }
+  function situacao(a) {
+    if (!NUVEM) return { ativa: true, plano: (CFG.plano || "pro"), dias: 99, teste: false };
+    if (!a) return { ativa: false, plano: "nenhum", dias: 0, teste: false };
+    const dias = Math.ceil((a.ate - Date.now()) / DIA);
+    return { ativa: !a.bloqueada && a.ate > Date.now(), plano: a.plano, dias, teste: a.plano === "teste", bloqueada: !!a.bloqueada, ate: a.ate };
+  }
+
   window.Store = {
-    id: LOJA_ID, uid, MODELOS, nuvem: NUVEM,
+    get id() { return LOJA_ID; }, uid, MODELOS, nuvem: NUVEM, pagina: PAGINA, DIA,
     onChange(fn) { listeners.push(fn); },
     onErro(fn) { erroL.push(fn); },
     ready(cb) { if (pronto) cb(); else prontoCbs.push(cb); },
@@ -215,31 +249,55 @@
     get() { return NUVEM ? (C.dados ? JSON.parse(JSON.stringify(C.dados)) : null) : read("dados", null); },
     img(v) { if (!v) return null; if (typeof v === "string" && v.startsWith("img:")) return C.imgs[v.slice(4)] || null; return v; },
     save(d) { if (NUVEM) { salvarNuvem(d); return true; } const ok = write("dados", d); if (ok) emit(); return ok; },
-    criar(opts) {
-      const d = criarLoja(opts);
-      if (NUVEM) { C.owner = C.user && C.user.uid; salvarNuvem(d); } else { write("dados", d); write("seq", 1000); emit(); }
-      return d;
-    },
+    criar(opts) { const d = criarLoja(opts); write("dados", d); write("seq", 1000); emit(); return d; },
 
-    // ----- dono (só nuvem) -----
+    // ----- assinatura -----
+    situacao() { return situacao(C.assinatura); },
+    plano() { const s = this.situacao(); return s.plano === "essencial" ? "essencial" : "pro"; },
+    lojaExiste() { return C.existe; },
+
+    // ----- contas (nuvem) -----
     usuario() { return C.user; },
-    souDono() { return !NUVEM || (C.user && (!C.owner || C.owner === C.user.uid)); },
-    lojaTemDono() { return !!C.owner; },
+    minhaLoja() { return C.minhaLoja; },
+    souMaster() { const u = C.user; return !!(u && u.emailVerified && MASTERS.includes((u.email || "").toLowerCase())); },
+    emailMaster() { const u = C.user; return !!(u && MASTERS.includes((u.email || "").toLowerCase())); },
     entrar(email, senha) { return auth.signInWithEmailAndPassword(email, senha); },
     criarConta(email, senha) { return auth.createUserWithEmailAndPassword(email, senha); },
     sair() { return NUVEM ? auth.signOut() : Promise.resolve(); },
     trocarSenha(nova) { return auth.currentUser.updatePassword(nova); },
     resetSenha(email) { return auth.sendPasswordResetEmail(email); },
+    verificarEmail() { return auth.currentUser.sendEmailVerification(); },
+    recarregarUsuario() { return auth.currentUser.reload().then(() => auth.currentUser.getIdToken(true)).then(() => { C.user = auth.currentUser; emit(); }); },
+    async linkLivre(slug) { const d = await db.collection("lojas").doc(slug).get(); return !d.exists; },
+    // cria a loja do dono: 3 dias de teste
+    async criarLojaNuvem(slug, opts) {
+      const u = C.user; const d = criarLoja(opts);
+      const lote = db.batch();
+      lote.set(db.collection("lojas").doc(slug), { dados: d, ownerUid: u.uid, assinatura: { plano: "teste", ate: Date.now() + 3 * DIA }, criado: Date.now(), atualizado: Date.now() });
+      lote.set(db.collection("usuarios").doc(u.uid), { loja: slug, email: u.email, criado: Date.now() });
+      await lote.commit();
+      C.minhaLoja = slug;
+      await new Promise((r) => usarLoja(slug, r));
+      emit();
+    },
     ouvirPedidos() {
-      if (!NUVEM || unsubPed || !C.user) return;
+      if (!NUVEM || unsubPed || !C.user || !lojaRef) return;
       unsubPed = lojaRef.collection("pedidos").orderBy("criado", "desc").limit(300).onSnapshot((qs) => {
         C.pedidos = qs.docs.map((d) => ({ ...d.data(), id: d.id })); emit();
       }, (e) => erro(/permission/i.test(e.message) ? "Esta conta não é dona desta loja." : "Erro ao carregar pedidos."));
     },
 
+    // ----- painel mestre -----
+    async todasLojas() {
+      const [ls, us] = await Promise.all([db.collection("lojas").get(), db.collection("usuarios").get()]);
+      const donos = {}; us.forEach((u) => { donos[u.id] = u.data(); });
+      return ls.docs.map((l) => { const v = l.data(); return { id: l.id, nome: v.dados && v.dados.loja && v.dados.loja.nome, whats: v.dados && v.dados.loja && v.dados.loja.whats, ownerUid: v.ownerUid, email: (donos[v.ownerUid] || {}).email || "", assinatura: v.assinatura || null, criado: v.criado || 0, situacao: situacao(v.assinatura) }; });
+    },
+    mudarAssinatura(id, assinatura) { return db.collection("lojas").doc(id).update({ assinatura }); },
+
     // ----- pedidos -----
     pedidos() { return NUVEM ? C.pedidos.slice() : read("pedidos", []).sort((a, b) => b.criado - a.criado); },
-    pedido(id) { return this.pedidos().find((p) => p.id === id) || (C.vistos && C.vistos[id]) || null; },
+    pedido(id) { return this.pedidos().find((p) => p.id === id) || C.vistos[id] || null; },
     addPedido(p) {
       if (NUVEM) {
         const ref = lojaRef.collection("pedidos").doc();
@@ -257,9 +315,8 @@
       const list = read("pedidos", []); const i = list.findIndex((p) => p.id === id); if (i < 0) return;
       list[i] = { ...list[i], ...patch }; write("pedidos", list); emit();
     },
-    // o cliente acompanha o próprio pedido ao vivo
     seguirPedido(id, cb) {
-      if (NUVEM) return lojaRef.collection("pedidos").doc(id).onSnapshot((d) => { if (d.exists) { C.vistos = C.vistos || {}; C.vistos[id] = { ...d.data(), id }; cb(C.vistos[id]); } }, () => {});
+      if (NUVEM) return lojaRef.collection("pedidos").doc(id).onSnapshot((d) => { if (d.exists) { C.vistos[id] = { ...d.data(), id }; cb(C.vistos[id]); } }, () => {});
       const f = () => { const p = read("pedidos", []).find((x) => x.id === id); if (p) cb(p); };
       f(); listeners.push(f); return () => { const i = listeners.indexOf(f); if (i >= 0) listeners.splice(i, 1); };
     },
@@ -284,7 +341,7 @@
       write("dados", o.dados); write("pedidos", o.pedidos || []); write("seq", 1000 + (o.pedidos || []).length); emit();
     },
     apagarTudo() {
-      if (NUVEM) { lojaRef.delete(); return; }
+      if (NUVEM) return;
       Object.keys(localStorage).filter((k) => k.startsWith(K(""))).forEach((k) => localStorage.removeItem(k)); emit();
     }
   };

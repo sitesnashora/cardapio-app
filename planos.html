@@ -170,8 +170,8 @@ footer{text-align:center;color:var(--muted);font-size:.82rem;padding-block:24px 
       <span class="eyebrow">Para lanchonetes, pizzarias e açaí</span>
       <h1 style="margin-top:10px">Seus pedidos direto no WhatsApp. <em>Sem comissão.</em></h1>
       <p>O cliente abre seu cardápio no celular, monta o pedido e ele chega pronto no seu WhatsApp, com endereço, troco e observações. Você paga um valor fixo por mês, venda o quanto vender.</p>
-      <div class="ctas"><a class="btn pri" href="#planos">Ver planos</a><a class="btn sec" href="./" target="_blank" rel="noopener">Ver demonstração</a></div>
-      <p style="margin-top:12px;font-size:.88rem;color:#b9bec5">Quer ver o lado da loja? <a href="admin.html" target="_blank" rel="noopener" style="color:#fff;font-weight:700">Abrir painel de exemplo</a> (senha 1234)</p>
+      <div class="ctas"><a class="btn pri" href="admin.html">Criar minha loja grátis</a><a class="btn sec" href="./" target="_blank" rel="noopener">Ver demonstração</a></div>
+      <p style="margin-top:12px;font-size:.88rem;color:#b9bec5">Quer ver o lado da loja? <a href="admin.html?demo" target="_blank" rel="noopener" style="color:#fff;font-weight:700">Abrir painel de exemplo</a> (senha 1234)</p>
       <div class="selos"><span>3 dias grátis</span><span>Sem taxa de instalação</span><span>Sem fidelidade</span></div>
     </div>
     <div class="fone" aria-hidden="true">
@@ -286,7 +286,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem;padding-block:24px 
 <section class="fim"><div class="in">
   <h2>Bora tirar a comissão da sua conta?</h2>
   <p>Me chama no WhatsApp que eu monto uma demonstração com o cardápio da sua loja.</p>
-  <div class="ctas"><a class="btn wa" id="waFim" target="_blank" rel="noopener">Falar no WhatsApp</a></div>
+  <div class="ctas"><a class="btn pri" href="admin.html">Criar minha loja grátis</a><a class="btn wa" id="waFim" target="_blank" rel="noopener">Falar no WhatsApp</a></div>
   <p class="num">WhatsApp: (33) 99862-8718</p>
 </div></section>
 <footer>Cardápio Direto · Samuel · Mendes Pimentel/MG</footer>
@@ -299,9 +299,9 @@ footer{text-align:center;color:var(--muted);font-size:.82rem;padding-block:24px 
     <div class="cc"><input id="pixcc" readonly aria-label="Pix copia e cola"><button id="cp">Copiar</button></div>
     <p class="ok" id="cpOk" hidden>Código copiado</p>
     <p class="chave">Chave Pix (e-mail): samuelijoi42@gmail.com · Nubank</p>
-    <div class="etapa"><b class="n">2</b><p>Envie o comprovante no WhatsApp<small>Eu ativo seu plano e começo a montar seu cardápio.</small></p></div>
+    <div class="etapa"><b class="n">2</b><p>Envie o comprovante no WhatsApp<small>Seu plano é liberado assim que o comprovante for conferido.</small></p></div>
     <a class="btn wa" id="waComp" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>
-    <p class="chave" style="margin-top:12px">Quer testar 3 dias grátis antes? <a id="waGratis" target="_blank" rel="noopener" style="font-weight:700">Começar sem pagar</a></p>
+    <p class="chave" style="margin-top:12px">Ainda não tem loja? <a href="admin.html" style="font-weight:700">Crie e teste 3 dias grátis</a><a id="waGratis" hidden></a></p>
   </div>
 </div>
 
@@ -332,7 +332,8 @@ document.querySelectorAll("[data-plano]").forEach((b) => b.onclick = () => {
   $("#mT").textContent = `Plano ${plano} · ${brl(valor)}/mês`;
   $("#pixcc").value = code; $("#cpOk").hidden = true;
   $("#qr").innerHTML = `<img src="qr-${plano.toLowerCase()}.png" alt="QR Code Pix do plano ${plano}" width="200" height="200">`;
-  $("#waComp").href = wa(`Olá Samuel! Paguei o plano ${plano} do Cardápio Direto (${brl(valor)}). Segue o comprovante:`);
+  const loja = new URLSearchParams(location.search).get("loja");
+  $("#waComp").href = wa(`Olá Samuel! Paguei o plano ${plano} do Cardápio Direto (${brl(valor)})${loja ? ` pra minha loja "${loja}"` : ""}. Segue o comprovante:`);
   $("#waGratis").href = wa(`Olá Samuel! Quero testar 3 dias grátis o plano ${plano} do Cardápio Direto.`);
   $("#ov").hidden = false; document.body.style.overflow = "hidden";
 });

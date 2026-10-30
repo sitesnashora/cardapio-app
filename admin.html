@@ -134,6 +134,10 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 <input type="file" id="fileIn" accept="image/*" class="hidden">
 <input type="file" id="bkIn" accept="application/json,.json" class="hidden">
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>window.APP_PAGE = "painel";</script>
 <script src="config.js"></script>
 <script src="art.js"></script>
 <script src="store.js"></script>
@@ -201,19 +205,25 @@ function pedirTexto(titulo, ph = "", ok = "Criar") {
   });
 }
 
-const DEMO = () => !!(window.APP_CONFIG && window.APP_CONFIG.demo) && !Store.nuvem;
-const PRO = () => (window.APP_CONFIG && window.APP_CONFIG.plano) !== "essencial";
-const bloqueio = (o) => `<div class="card" style="text-align:center;padding:22px"><b>🔒 ${o}</b><p class="muted" style="margin-top:6px;font-size:.88rem">Disponível no plano Pro. Fale com o suporte pra liberar.</p></div>`;
+const DEMO = () => !Store.nuvem;
+const PRO = () => Store.plano() === "pro";
+const VENDAS = location.href.replace(/admin\.html.*$/, "planos.html");
+const linkAssinar = () => `${VENDAS}?loja=${encodeURIComponent(Store.id)}#planos`;
+const bloqueio = (o) => `<div class="card" style="text-align:center;padding:22px"><b>🔒 ${o}</b><p class="muted" style="margin-top:6px;font-size:.88rem">Disponível no plano Pro.</p><a class="btn" style="margin-top:12px" href="${linkAssinar()}" target="_blank" rel="noopener">Mudar pro plano Pro</a></div>`;
 
 // ================= ENTRADA =================
 let t0 = Date.now(), ultUser = undefined;
+let chaveAtual = "";
+function chaveNuvem() { const u = Store.usuario(); return [u ? u.uid : "-", Store.minhaLoja() === undefined ? "?" : Store.minhaLoja() || "0", Store.get() ? 1 : 0].join("|"); }
 function inicio() {
   D = Store.get();
   if (Store.nuvem) {
+    chaveAtual = chaveNuvem();
     ultUser = Store.usuario();
-    if (!ultUser) return loginNuvem();
-    if (!D) return setup();
-    if (!Store.souDono()) return naoDono();
+    if (!ultUser) { iniciado = false; return loginNuvem(); }
+    if (Store.minhaLoja() === undefined) return ($("#root").innerHTML = `<div class="gate"><p class="muted">Carregando sua loja…</p></div>`);
+    if (!Store.minhaLoja()) return setup();
+    if (!D) return ($("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center"><h1>Loja não encontrada</h1><p class="muted" style="margin-top:8px">Fale com o suporte.</p><button class="btn full" style="margin-top:16px" onclick="Store.sair()">Sair</button></div></div>`);
     aplicarCor(D.loja.cor); Store.ouvirPedidos(); t0 = Date.now(); return app();
   }
   if (!D) return setup();
@@ -229,56 +239,73 @@ function setup() {
       <h1>Vamos montar seu cardápio</h1><p class="muted" style="margin-top:6px">Leva 1 minuto. Tudo pode ser mudado depois no painel.</p>
       <label class="f">Nome da loja</label><input class="i" id="sNome" placeholder="Ex.: Burger do Zé" value="${esc(window._sn || "")}">
       <label class="f">WhatsApp que vai receber os pedidos</label><input class="i" id="sWa" inputmode="tel" placeholder="(00) 9 0000-0000" value="${esc(window._sw || "")}">
+      ${Store.nuvem ? `<label class="f">Link da sua loja</label><div style="display:flex;align-items:center;gap:6px;background:var(--bg2);border:1.5px solid var(--line);border-radius:12px;padding-left:12px"><span class="muted" style="font-size:.85rem;white-space:nowrap">…?l=</span><input class="i" id="sSlug" style="border:0;padding-left:2px" placeholder="burgerdoze" value="${esc(window._ss || "")}" autocapitalize="none" autocomplete="off"></div><p class="hint" id="sSlugH">Só letras minúsculas, números e hífen. Ex.: burgerdoze</p>` : ""}
       <label class="f">Tipo de negócio</label>
       <div class="segs">${Object.entries(Store.MODELOS).map(([k, m]) => `<button class="sg ${seg === k ? "on" : ""}" data-seg="${k}"><span class="ph">${ART[m.art] || ART.caixa}</span>${esc(m.nome)}</button>`).join("")}</div>
       <p class="hint">Já vem com um cardápio de exemplo desse tipo pra você só editar.</p>
       <p class="err hidden" id="sErr"></p>
       <button class="btn full" id="sGo" style="margin-top:18px">Criar meu cardápio</button>
-      <button class="btn full ghost" id="sImp" style="margin-top:10px">Restaurar de um backup</button>
+      ${Store.nuvem ? `<p class="hint" style="text-align:center;margin-top:12px">Você ganha 3 dias grátis pra testar. <button class="mini" id="sSair" style="margin-left:4px">Sair</button></p>` : `<button class="btn full ghost" id="sImp" style="margin-top:10px">Restaurar de um backup</button>`}
     </div></div>`;
-    document.querySelectorAll("[data-seg]").forEach((b) => b.onclick = () => { window._sn = $("#sNome").value; window._sw = $("#sWa").value; seg = b.dataset.seg; cor = Store.MODELOS[seg].cor; aplicarCor(cor); draw(); });
-    $("#sGo").onclick = () => {
+    const slugDe = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 30);
+    if ($("#sSlug")) {
+      $("#sNome").addEventListener("input", () => { if (!$("#sSlug").dataset.mexeu) $("#sSlug").value = slugDe($("#sNome").value).replace(/-/g, ""); });
+      $("#sSlug").addEventListener("input", () => { $("#sSlug").dataset.mexeu = "1"; const v = slugDe($("#sSlug").value); if (v !== $("#sSlug").value) $("#sSlug").value = v; });
+    }
+    if ($("#sSair")) $("#sSair").onclick = () => Store.sair();
+    document.querySelectorAll("[data-seg]").forEach((b) => b.onclick = () => { window._sn = $("#sNome").value; window._sw = $("#sWa").value; if ($("#sSlug")) window._ss = $("#sSlug").value; seg = b.dataset.seg; cor = Store.MODELOS[seg].cor; aplicarCor(cor); draw(); });
+    $("#sGo").onclick = async () => {
       const nome = $("#sNome").value.trim(), wa = soDig($("#sWa").value);
       if (!nome) return erro("Coloque o nome da loja.");
       if (wa.length < 10) return erro("Coloque o WhatsApp com DDD.");
+      if (Store.nuvem) {
+        const slug = $("#sSlug").value.trim();
+        if (!/^[a-z0-9-]{3,30}$/.test(slug)) return erro("O link precisa ter de 3 a 30 letras minúsculas, números ou hífen.");
+        $("#sGo").disabled = true; $("#sGo").textContent = "Criando…";
+        try {
+          if (!(await Store.linkLivre(slug))) { $("#sGo").disabled = false; $("#sGo").textContent = "Criar meu cardápio"; return erro("Esse link já está em uso. Escolha outro."); }
+          await Store.criarLojaNuvem(slug, { nome, segmento: seg, whats: wa, cor });
+          toast("Loja criada! Você tem 3 dias grátis.");
+          return inicio();
+        } catch (e) { console.error(e); $("#sGo").disabled = false; $("#sGo").textContent = "Criar meu cardápio"; return erro(/permission/i.test(e.message || "") ? "Esta conta já tem uma loja ou o link está em uso." : "Não deu certo. Verifique a internet e tente de novo."); }
+      }
       Store.criar({ nome, segmento: seg, whats: wa, cor });
       try { sessionStorage.setItem(SKEY, "1"); } catch (e) {}
       toast(Store.nuvem ? "Cardápio criado! Agora é só editar." : "Cardápio criado! PIN do painel: 1234 (troque em Loja › Segurança)");
       inicio();
     };
-    $("#sImp").onclick = importar;
+    if ($("#sImp")) $("#sImp").onclick = importar;
   };
   const erro = (m) => { $("#sErr").textContent = m; $("#sErr").classList.remove("hidden"); };
   aplicarCor(cor); draw();
 }
+let modoLogin = "criar";
 function loginNuvem() {
-  const temDono = Store.lojaTemDono();
-  const nome = D ? D.loja.nome : "Painel da loja", lg = D ? Store.img(D.loja.logo) : null;
-  if (D) aplicarCor(D.loja.cor);
+  aplicarCor("#ff5a1f");
+  const criar = modoLogin === "criar";
   $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center">
-    <div class="upl" style="justify-content:center"><div class="lg">${lg ? `<img src="${lg}">` : esc((nome || "?")[0])}</div></div>
-    <h1 style="margin-top:14px">${esc(nome)}</h1><p class="muted">${temDono ? "Entre com o e-mail e a senha do dono" : "Crie o acesso do dono da loja"}</p>
+    <div class="upl" style="justify-content:center"><div class="lg" style="color:var(--brand)">🍽️</div></div>
+    <h1 style="margin-top:14px">${criar ? "Crie sua loja" : "Entrar no painel"}</h1>
+    <p class="muted">${criar ? "Cardápio digital com pedidos no WhatsApp. 3 dias grátis." : "Use o e-mail e a senha da sua loja"}</p>
+    <div class="seg" style="margin-top:16px"><button data-ml="criar" class="${criar ? "on" : ""}">Criar loja</button><button data-ml="entrar" class="${criar ? "" : "on"}">Já tenho conta</button></div>
     <div style="text-align:left"><label class="f">E-mail</label><input class="i" id="lEm" type="email" autocomplete="username" inputmode="email">
-    <label class="f">Senha</label><input class="i" id="lSe" type="password" autocomplete="${temDono ? "current-password" : "new-password"}" placeholder="${temDono ? "" : "Mínimo 6 caracteres"}"></div>
+    <label class="f">Senha</label><input class="i" id="lSe" type="password" autocomplete="${criar ? "new-password" : "current-password"}" placeholder="${criar ? "Mínimo 6 caracteres" : ""}"></div>
     <p class="err hidden" id="lErr"></p>
-    <button class="btn full" id="lGo" style="margin-top:16px">${temDono ? "Entrar" : "Criar acesso e continuar"}</button>
-    ${temDono ? `<button class="mini" id="lEsq" style="margin-top:12px">Esqueci a senha</button>` : ""}</div></div>`;
+    <button class="btn full" id="lGo" style="margin-top:16px">${criar ? "Criar conta e continuar" : "Entrar"}</button>
+    ${criar ? "" : `<button class="mini" id="lEsq" style="margin-top:12px">Esqueci a senha</button>`}</div></div>`;
+  document.querySelectorAll("[data-ml]").forEach((b) => b.onclick = () => { modoLogin = b.dataset.ml; loginNuvem(); });
   const err = (m) => { $("#lErr").textContent = m; $("#lErr").classList.remove("hidden"); };
-  const traduz = (e) => { const c = (e && e.code) || ""; return c.includes("invalid") || c.includes("wrong-password") || c.includes("user-not-found") ? "E-mail ou senha incorretos." : c.includes("email-already") ? "Esse e-mail já tem conta. Use Entrar." : c.includes("weak-password") ? "A senha precisa ter pelo menos 6 caracteres." : c.includes("too-many") ? "Muitas tentativas. Espere um pouco." : c.includes("network") ? "Sem internet." : "Não deu certo. Tente de novo."; };
+  const traduz = (e) => { const c = (e && e.code) || ""; return c.includes("invalid") || c.includes("wrong-password") || c.includes("user-not-found") ? "E-mail ou senha incorretos." : c.includes("email-already") ? "Esse e-mail já tem conta. Toque em \"Já tenho conta\"." : c.includes("weak-password") ? "A senha precisa ter pelo menos 6 caracteres." : c.includes("too-many") ? "Muitas tentativas. Espere um pouco." : c.includes("network") ? "Sem internet." : "Não deu certo. Tente de novo."; };
   const go = async () => {
     const em = $("#lEm").value.trim(), se = $("#lSe").value;
     if (!/\S+@\S+\.\S+/.test(em)) return err("Coloque um e-mail válido.");
     if (se.length < 6) return err("A senha precisa ter pelo menos 6 caracteres.");
     $("#lGo").disabled = true;
     try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
-    try { temDono ? await Store.entrar(em, se) : await Store.criarConta(em, se); } catch (e) { err(traduz(e)); $("#lGo").disabled = false; }
+    try { criar ? await Store.criarConta(em, se) : await Store.entrar(em, se); } catch (e) { err(traduz(e)); $("#lGo").disabled = false; }
   };
   $("#lGo").onclick = go; $("#lSe").addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
   if ($("#lEsq")) $("#lEsq").onclick = async () => { const em = $("#lEm").value.trim(); if (!em) return err("Digite seu e-mail primeiro."); try { await Store.resetSenha(em); toast("Enviamos um link pro seu e-mail"); } catch (e) { err(traduz(e)); } };
-}
-function naoDono() {
-  $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center"><h1>Acesso negado</h1><p class="muted" style="margin-top:8px">Esta conta (${esc(Store.usuario().email)}) não é a dona desta loja.</p><button class="btn full" id="nSair" style="margin-top:18px">Sair e entrar com outra conta</button></div></div>`;
-  $("#nSair").onclick = () => Store.sair();
 }
 function login() {
   $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center">
@@ -301,7 +328,7 @@ function app() {
   $("#root").innerHTML = `
   <header class="top"><div class="wrap"><div style="min-width:0"><h1 id="tNome"></h1><small id="tSub">Painel da loja</small></div>
     <button class="stbtn" id="stBtn"><i></i><span></span></button></div></header>
-  ${DEMO() ? `<div style="background:color-mix(in srgb,var(--warn) 16%,transparent);color:#ffd27a;font-size:.8rem;font-weight:600;text-align:center;padding:8px 16px">Painel de demonstração · o que você mudar fica só neste celular</div>` : ""}
+  ${DEMO() ? `<div style="background:color-mix(in srgb,var(--warn) 16%,transparent);color:#ffd27a;font-size:.8rem;font-weight:600;text-align:center;padding:8px 16px">Painel de demonstração · o que você mudar fica só neste celular</div>` : `<div id="assBar"></div>`}
   <main class="wrap" id="main"></main>
   <nav class="nav">
     ${[["pedidos", "Pedidos", '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],
@@ -318,14 +345,25 @@ function app() {
   });
   $("#stBtn").onclick = abrirStatusLoja;
   renderTopo(); renderTab();
-  if (!iniciado) {
-    iniciado = true; seen = new Set(Store.pedidos().map((p) => p.id));
+  seen = new Set(Store.pedidos().map((p) => p.id)); iniciado = true;
+  if (!window._ouvindo) {
+    window._ouvindo = true;
     Store.onChange(() => { D = Store.get(); if (!D || !$("#main")) return; checarNovos(); renderTopo(); if (tab === "pedidos" || tab === "resumo") renderTab(); });
     setInterval(() => { if (!$("#main")) return; checarNovos(); if (tab === "pedidos" && !document.querySelector(".sheet.open")) renderPedidos(); renderTopo(); }, 5000);
   }
 }
+function renderAssinatura() {
+  const el = $("#assBar"); if (!el) return;
+  const s = Store.situacao();
+  const css = (cor) => `display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;font-size:.84rem;font-weight:600;text-align:center;padding:9px 16px;background:color-mix(in srgb,${cor} 18%,transparent)`;
+  const btn = `<a class="mini" style="background:var(--brand);color:#fff" href="${linkAssinar()}" target="_blank" rel="noopener">Assinar</a>`;
+  el.innerHTML = !s.ativa ? `<div style="${css("var(--bad)")};color:#ff9a90">${s.bloqueada ? "Loja pausada pelo suporte." : s.teste ? "Seu teste grátis acabou." : "Sua assinatura venceu."} O cardápio está fora do ar. ${btn}</div>`
+    : s.teste ? `<div style="${css("var(--warn)")};color:#ffd27a">Teste grátis: ${s.dias <= 1 ? "último dia" : `faltam ${s.dias} dias`} ${btn}</div>`
+    : s.dias <= 5 ? `<div style="${css("var(--warn)")};color:#ffd27a">Plano ${s.plano === "pro" ? "Pro" : "Essencial"} vence em ${s.dias} dia(s) ${btn}</div>` : "";
+}
 function renderTopo() {
   if (!$("#tNome")) return;
+  renderAssinatura();
   const st = statusLoja(D.loja); $("#tNome").textContent = D.loja.nome;
   $("#stBtn").classList.toggle("off", !st.aberta); $("#stBtn span").textContent = st.aberta ? "Aberta" : "Fechada";
   $("#tSub").textContent = (D.loja.modo === "auto" ? "Automático · " : D.loja.modo === "aberta" ? "Forçado aberto · " : "Forçado fechado · ") + st.texto;
@@ -558,7 +596,7 @@ function renderLoja() {
   D = Store.get(); if (!F) F = clone(D.loja);
   const T = (p, t, s) => `<div class="setrow"><div class="tx"><b>${t}</b>${s ? `<small>${s}</small>` : ""}</div><button class="tg ${getP(F, p) ? "on" : ""}" data-tg="${p}"></button></div>`;
   const I = (p, t, ph = "", extra = "") => `<label class="f">${t}</label><input class="i" data-b="${p}" value="${esc(getP(F, p) ?? "")}" placeholder="${esc(ph)}" ${extra}>`;
-  const link = location.href.replace(/admin\.html.*$/, "");
+  const link = location.href.replace(/admin\.html.*$/, "") + (Store.nuvem ? "?l=" + Store.id : "");
   const CORES = ["#ff5a1f", "#d62828", "#e09f00", "#2d9b4a", "#1d7fd6", "#7b2cbf", "#e5387e", "#8d5524", "#111111"];
   $("#main").innerHTML = `
   <div class="secT"><h2>Identidade</h2></div><div class="card">
@@ -719,7 +757,7 @@ function renderResumo() {
     <div class="secT"><h2>Mais vendidos</h2></div><div class="card">${tl.length ? tl.map(([n, v]) => `<div style="padding:6px 0"><div class="line" style="padding:0"><span>${esc(n)}</span><b>${v.q}</b></div><div class="barra"><i style="width:${(v.q / mx) * 100}%"></i></div></div>`).join("") : `<p class="muted">Sem vendas nesse período.</p>`}</div>
     <div class="secT"><h2>Formas de pagamento</h2></div><div class="card">${Object.keys(pg).length ? Object.entries(pg).map(([n, v]) => `<div class="line"><span>${esc(n)}</span><b>${brl(v)}</b></div>`).join("") : `<p class="muted">—</p>`}</div>
     <div class="secT"><h2>Clientes</h2></div>${!PRO() ? bloqueio("Lista de clientes") : `<div class="card">${cls.length ? cls.map((c) => `<div class="cli"><div class="tx"><b>${esc(c.nome)}</b><small>${c.n} pedido(s) · ${brl(c.v)} · último ${ago(c.ult)}</small></div><a class="wa" href="https://wa.me/${waNum(c.whats)}?text=${encodeURIComponent(`Oi ${c.nome.split(" ")[0]}! Aqui é da ${D.loja.nome} 😄 Bateu a fome? Nosso cardápio: ${location.href.replace(/admin\.html.*$/, "")}`)}" target="_blank" rel="noopener">Chamar</a></div>`).join("") : `<p class="muted">Os clientes aparecem aqui conforme os pedidos chegam.</p>`}</div>`}
-    <p class="hint" style="text-align:center;margin-top:20px">Plano ${PRO() ? "Pro" : "Essencial"}</p>`;
+    <p class="hint" style="text-align:center;margin-top:20px">${Store.nuvem ? (Store.situacao().teste ? "Teste grátis (recursos do Pro)" : "Plano " + (PRO() ? "Pro" : "Essencial")) + ` · <a href="${linkAssinar()}" target="_blank" rel="noopener" style="color:var(--muted)">ver planos</a>` : "Plano Pro"}</p>`;
   document.querySelectorAll("[data-pe]").forEach((b) => b.onclick = () => { periodo = b.dataset.pe; renderResumo(); });
 }
 
@@ -727,9 +765,9 @@ window.addEventListener("beforeunload", (e) => { if (sujo) { e.preventDefault();
 $("#root").innerHTML = `<div class="gate"><p class="muted">Carregando…</p></div>`;
 Store.onErro((m) => toast(m));
 Store.ready(() => {
-  if ((window.APP_CONFIG || {}).demo) window.montarDemo();
+  if (!Store.nuvem) window.montarDemo();
   inicio();
-  if (Store.nuvem) Store.onChange(() => { const u = Store.usuario(); if (u !== ultUser || (!iniciado && u && Store.get())) { ultUser = u; if (!u) { iniciado = false; } inicio(); } });
+  if (Store.nuvem) Store.onChange(() => { if (chaveNuvem() !== chaveAtual) inicio(); });
 });
 </script>
 </body>

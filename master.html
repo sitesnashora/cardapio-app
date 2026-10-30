@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Painel Mestre</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f0d0c">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+body{background:#0c0a09}
+.gate{min-height:100vh;display:grid;place-items:center;padding:24px}
+.gbox{width:100%;max-width:420px}
+.gbox h1{font-size:1.5rem;font-weight:800}
+.top{position:sticky;top:0;z-index:10;background:rgba(12,10,9,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:10px;padding-top:12px;padding-bottom:12px}
+.top h1{font-size:1.05rem;font-weight:800}
+.top small{display:block;color:var(--muted);font-size:.75rem}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.k{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.k small{display:block;color:var(--muted);font-size:.72rem;font-weight:600}
+.k b{font-size:1.3rem;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none}
+.chip{flex:none;padding:8px 13px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-size:.82rem;font-weight:600;color:var(--muted)}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.lj{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:10px}
+.lh{display:flex;align-items:flex-start;gap:8px}
+.lh .tx{flex:1;min-width:0}
+.lh b{font-size:1.02rem}
+.lh small{display:block;color:var(--muted);font-size:.8rem;word-break:break-all}
+.st{font-size:.72rem;font-weight:700;padding:4px 9px;border-radius:99px;white-space:nowrap}
+.st.teste{background:rgba(255,176,32,.16);color:#ffcc66}
+.st.ativo{background:rgba(47,191,107,.16);color:#6fe3a0}
+.st.off{background:rgba(255,91,77,.14);color:#ff8a7f}
+.ac{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+@media (max-width:520px){.kp{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="root"><div class="gate"><p class="muted">Carregando…</p></div></div>
+<div class="sheet" id="shAsk" style="align-items:center;padding:20px"><div class="panel" style="border-radius:20px;max-width:380px" id="pnAsk"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>window.APP_PAGE = "master";</script>
+<script src="config.js"></script>
+<script src="store.js"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+let lojas = [], filtro = "todas";
+function toast(t) { const e = $("#toast"); e.textContent = t; e.classList.add("show"); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove("show"), 2800); }
+function confirmar(msg, sim) {
+  return new Promise((res) => {
+    $("#pnAsk").innerHTML = `<div class="pbody" style="padding-top:20px"><p style="font-weight:600">${esc(msg)}</p><div style="display:flex;gap:8px;margin-top:18px"><button class="btn ghost" style="flex:1" id="aN">Voltar</button><button class="btn" style="flex:1" id="aS">${esc(sim)}</button></div></div>`;
+    const fim = (v) => { $("#shAsk").classList.remove("open"); res(v); };
+    $("#aN").onclick = () => fim(false); $("#aS").onclick = () => fim(true); $("#shAsk").classList.add("open");
+  });
+}
+const base = location.href.replace(/master\.html.*$/, "");
+const dataBR = (t) => new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+
+function tela() {
+  const u = Store.usuario();
+  if (!Store.nuvem) return ($("#root").innerHTML = `<div class="gate"><p>Firebase não configurado.</p></div>`);
+  if (!u) return login();
+  if (!Store.emailMaster()) return ($("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center"><h1>Sem acesso</h1><p class="muted" style="margin-top:8px">${esc(u.email)} não é administrador.</p><button class="btn full" style="margin-top:16px" id="sair">Sair</button></div></div>`, $("#sair").onclick = () => Store.sair());
+  if (!Store.souMaster()) return verificar();
+  painel();
+}
+function login() {
+  $("#root").innerHTML = `<div class="gate"><div class="gbox"><h1>Painel Mestre</h1><p class="muted">Só pra você administrar as lojas.</p>
+    <label class="f">E-mail</label><input class="i" id="em" type="email" autocomplete="username">
+    <label class="f">Senha</label><input class="i" id="se" type="password" autocomplete="current-password">
+    <p class="err hidden" id="er"></p>
+    <button class="btn full" id="go" style="margin-top:16px">Entrar</button>
+    <button class="btn full ghost" id="cr" style="margin-top:10px">Primeiro acesso: criar conta</button></div></div>`;
+  const er = (m) => { $("#er").textContent = m; $("#er").classList.remove("hidden"); };
+  const tr = (e) => { const c = (e && e.code) || ""; return c.includes("email-already") ? "Esse e-mail já tem conta. Use Entrar." : c.includes("weak") ? "Senha com no mínimo 6 caracteres." : c.includes("invalid") || c.includes("wrong") || c.includes("not-found") ? "E-mail ou senha incorretos." : "Não deu certo."; };
+  const val = () => { const em = $("#em").value.trim(), se = $("#se").value; if (!em || se.length < 6) { er("Preencha e-mail e senha (mínimo 6)."); return null; } if (!(window.APP_CONFIG.masters || []).includes(em.toLowerCase())) { er("Esse e-mail não está na lista de administradores."); return null; } return [em, se]; };
+  $("#go").onclick = async () => { const v = val(); if (v) try { await Store.entrar(...v); } catch (e) { er(tr(e)); } };
+  $("#cr").onclick = async () => { const v = val(); if (v) try { await Store.criarConta(...v); } catch (e) { er(tr(e)); } };
+}
+function verificar() {
+  $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center"><h1>Confirme seu e-mail</h1>
+    <p class="muted" style="margin-top:8px">Por segurança, o painel mestre só abre com e-mail confirmado. Enviamos um link pra <b>${esc(Store.usuario().email)}</b>.</p>
+    <button class="btn full" id="ja" style="margin-top:16px">Já confirmei</button>
+    <button class="btn full ghost" id="re" style="margin-top:10px">Reenviar e-mail</button>
+    <button class="mini" id="sa" style="margin-top:12px">Sair</button></div></div>`;
+  $("#ja").onclick = async () => { await Store.recarregarUsuario(); if (Store.souMaster()) painel(); else toast("Ainda não confirmado. Veja sua caixa de entrada e o spam."); };
+  $("#re").onclick = async () => { try { await Store.verificarEmail(); toast("E-mail enviado"); } catch (e) { toast("Espere um pouco e tente de novo"); } };
+  $("#sa").onclick = () => Store.sair();
+  if (!window._enviou) { window._enviou = 1; Store.verificarEmail().catch(() => {}); }
+}
+async function carregar() {
+  try { lojas = (await Store.todasLojas()).sort((a, b) => b.criado - a.criado); }
+  catch (e) { console.error(e); toast("Não consegui carregar as lojas"); lojas = []; }
+  desenhar();
+}
+function painel() {
+  $("#root").innerHTML = `<header class="top"><div class="wrap"><div style="flex:1"><h1>Painel Mestre</h1><small>${esc(Store.usuario().email)}</small></div><button class="mini" id="rf">Atualizar</button><button class="mini" id="sa">Sair</button></div></header>
+    <main class="wrap" style="padding-bottom:40px"><div id="ks"></div><div class="chips" id="fs"></div><div id="ls"><p class="empty">Carregando lojas…</p></div></main>`;
+  $("#rf").onclick = carregar; $("#sa").onclick = () => Store.sair();
+  carregar();
+}
+function grupo(l) { const s = l.situacao; return s.bloqueada ? "off" : !s.ativa ? "off" : s.teste ? "teste" : "ativo"; }
+function desenhar() {
+  const n = { teste: 0, ativo: 0, off: 0 }; let receita = 0;
+  lojas.forEach((l) => { n[grupo(l)]++; if (grupo(l) === "ativo") receita += l.situacao.plano === "pro" ? 89.9 : 59.9; });
+  $("#ks").innerHTML = `<div class="kp"><div class="k"><small>Lojas</small><b>${lojas.length}</b></div><div class="k"><small>Pagando</small><b>${n.ativo}</b></div><div class="k"><small>Em teste</small><b>${n.teste}</b></div><div class="k"><small>Por mês</small><b>${brl(receita)}</b></div></div>`;
+  $("#fs").innerHTML = [["todas", "Todas"], ["teste", "Em teste"], ["ativo", "Pagando"], ["off", "Fora do ar"]].map(([k, t]) => `<button class="chip ${filtro === k ? "on" : ""}" data-f="${k}">${t}</button>`).join("");
+  document.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { filtro = b.dataset.f; desenhar(); });
+  const lista = lojas.filter((l) => filtro === "todas" || grupo(l) === filtro);
+  $("#ls").innerHTML = lista.length ? lista.map((l) => {
+    const s = l.situacao, g = grupo(l);
+    const rot = s.bloqueada ? "Bloqueada" : !s.ativa ? (s.teste ? "Teste acabou" : "Vencida") : s.teste ? `Teste · ${s.dias}d` : `${s.plano === "pro" ? "Pro" : "Essencial"} · ${s.dias}d`;
+    return `<div class="lj"><div class="lh"><div class="tx"><b>${esc(l.nome || l.id)}</b><small>${esc(l.email)} · ${l.whats ? fone(l.whats) : "sem WhatsApp"}</small><small>Link: ${esc(l.id)} · criada ${l.criado ? dataBR(l.criado) : "-"}${l.assinatura && l.assinatura.ate ? ` · vence ${dataBR(l.assinatura.ate)}` : ""}</small></div><span class="st ${g}">${rot}</span></div>
+      <div class="ac"><button class="btn" style="padding:10px 12px;font-size:.85rem" data-lib="${l.id}" data-p="pro">+30 dias Pro</button><button class="btn ghost" style="padding:10px 12px;font-size:.85rem" data-lib="${l.id}" data-p="essencial">+30 dias Essencial</button>
+        ${s.bloqueada ? `<button class="mini" data-des="${l.id}">Desbloquear</button>` : `<button class="mini red" data-blq="${l.id}">Bloquear</button>`}
+        <a class="mini" href="${base}?l=${encodeURIComponent(l.id)}" target="_blank" rel="noopener">Ver cardápio</a>
+        ${l.whats ? `<a class="mini" style="color:#6fe3a0" href="https://wa.me/${waNum(l.whats)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}</div></div>`;
+  }).join("") : `<p class="empty">Nenhuma loja aqui.</p>`;
+  document.querySelectorAll("[data-lib]").forEach((b) => b.onclick = async () => {
+    const l = lojas.find((x) => x.id === b.dataset.lib), plano = b.dataset.p;
+    if (!(await confirmar(`Liberar 30 dias do plano ${plano === "pro" ? "Pro" : "Essencial"} pra ${l.nome || l.id}?`, "Liberar"))) return;
+    const atual = l.assinatura && !l.assinatura.bloqueada && l.assinatura.plano !== "teste" && l.assinatura.ate > Date.now() ? l.assinatura.ate : Date.now();
+    try { await Store.mudarAssinatura(l.id, { plano, ate: atual + 30 * Store.DIA, bloqueada: false, liberadoEm: Date.now() }); toast("Liberado ✓"); carregar(); } catch (e) { toast("Sem permissão. Seu e-mail está confirmado?"); }
+  });
+  document.querySelectorAll("[data-blq]").forEach((b) => b.onclick = async () => {
+    const l = lojas.find((x) => x.id === b.dataset.blq);
+    if (!(await confirmar(`Bloquear ${l.nome || l.id}? O cardápio sai do ar.`, "Bloquear"))) return;
+    try { await Store.mudarAssinatura(l.id, { ...(l.assinatura || { plano: "teste", ate: Date.now() }), bloqueada: true }); toast("Bloqueada"); carregar(); } catch (e) { toast("Sem permissão"); }
+  });
+  document.querySelectorAll("[data-des]").forEach((b) => b.onclick = async () => {
+    const l = lojas.find((x) => x.id === b.dataset.des);
+    try { await Store.mudarAssinatura(l.id, { ...l.assinatura, bloqueada: false }); toast("Desbloqueada"); carregar(); } catch (e) { toast("Sem permissão"); }
+  });
+}
+let ultimo = "";
+Store.ready(() => { tela(); Store.onChange(() => { const u = Store.usuario(); const k = u ? u.uid + (u.emailVerified ? "v" : "") : "-"; if (k !== ultimo) { ultimo = k; tela(); } }); });
+</script>
+</body>
+</html>

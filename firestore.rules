@@ -1,38 +1,70 @@
 rules_version = '2';
-// Regras do banco: qualquer pessoa vê o cardápio e faz pedido,
-// só o dono da loja muda o cardápio e vê a lista de pedidos.
+// Cardápio Direto
+// - Qualquer pessoa ve o cardapio e faz pedido (se a loja estiver ativa).
+// - Cada dono so mexe na propria loja e NAO consegue mudar o plano.
+// - So o administrador (e-mail confirmado) libera planos e ve todas as lojas.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function master() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['samuelijoi42@gmail.com', 'samujo2pi@gmail.com'];
+    }
+
+    match /usuarios/{uid} {
+      allow get: if request.auth != null && (request.auth.uid == uid || master());
+      allow list: if master();
+      allow create: if request.auth != null && request.auth.uid == uid
+        && getAfter(/databases/$(database)/documents/lojas/$(request.resource.data.loja)).data.ownerUid == uid;
+      allow update, delete: if master();
+    }
+
     match /lojas/{loja} {
       function dono() {
         return request.auth != null
           && get(/databases/$(database)/documents/lojas/$(loja)).data.ownerUid == request.auth.uid;
       }
+      function ativa() {
+        let a = get(/databases/$(database)/documents/lojas/$(loja)).data.assinatura;
+        return a.ate > request.time.toMillis() && !(a.get('bloqueada', false));
+      }
 
       allow read: if true;
-      // o primeiro acesso do dono cria a loja e vira o dono
-      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
-      // só o dono altera, e ninguém troca o dono
-      allow update: if request.auth != null && resource.data.ownerUid == request.auth.uid
-                    && request.resource.data.ownerUid == resource.data.ownerUid;
-      allow delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+
+      // loja nova: 1 por conta, sempre comecando com 3 dias de teste
+      allow create: if request.auth != null
+        && loja.matches('^[a-z0-9-]{3,30}$')
+        && request.resource.data.ownerUid == request.auth.uid
+        && !exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && getAfter(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.loja == loja
+        && request.resource.data.assinatura.plano == 'teste'
+        && request.resource.data.assinatura.ate <= request.time.toMillis() + 3 * 86400000 + 600000;
+
+      // dono muda o cardapio, mas nao o dono nem a assinatura
+      allow update: if master()
+        || (request.auth != null
+            && resource.data.ownerUid == request.auth.uid
+            && request.resource.data.ownerUid == resource.data.ownerUid
+            && request.resource.data.assinatura == resource.data.assinatura);
+
+      allow delete: if master();
 
       match /imagens/{img} {
         allow read: if true;
-        allow write: if dono();
+        allow write: if dono() || master();
       }
 
       match /pedidos/{pedido} {
-        // o freguês acompanha o próprio pedido pelo código (não lista os outros)
         allow get: if true;
-        allow list: if dono();
-        // qualquer um cria pedido novo, sempre com status "novo"
-        allow create: if request.resource.data.status == 'novo'
-                      && request.resource.data.total is number
-                      && request.resource.data.itens is list
-                      && request.resource.data.itens.size() > 0
-                      && request.resource.data.itens.size() < 60;
-        allow update, delete: if dono();
+        allow list: if dono() || master();
+        allow create: if ativa()
+          && request.resource.data.status == 'novo'
+          && request.resource.data.total is number
+          && request.resource.data.itens is list
+          && request.resource.data.itens.size() > 0
+          && request.resource.data.itens.size() < 60;
+        allow update, delete: if dono() || master();
       }
     }
   }

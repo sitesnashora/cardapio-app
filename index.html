@@ -159,6 +159,10 @@ body.combarra .fab{bottom:calc(86px + env(safe-area-inset-bottom))}
 <button class="fab hidden" id="fab" aria-label="Tirar dúvidas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.2-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01" stroke-width="3" stroke-linecap="round"/></svg></button>
 <div class="toast" id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>window.APP_PAGE = "cardapio";</script>
 <script src="config.js"></script>
 <script src="art.js"></script>
 <script src="store.js"></script>
@@ -180,6 +184,11 @@ function salvarCart() { try { sessionStorage.setItem("cart_" + Store.id, JSON.st
 // ================= TELA PRINCIPAL =================
 function render() {
   D = Store.get();
+  if (Store.nuvem && (!Store.lojaExiste() || !Store.situacao().ativa)) {
+    document.title = D ? D.loja.nome : "Cardápio";
+    $("#root").innerHTML = `<div class="setup"><div><div class="logo" style="margin:0 auto">🍽️</div><h2 style="margin-top:16px">${!Store.lojaExiste() ? "Loja não encontrada" : esc(D.loja.nome)}</h2><p class="muted" style="margin-top:6px">${!Store.lojaExiste() ? "Confira se o link está certo." : "O cardápio está temporariamente fora do ar."}</p>${Store.lojaExiste() && D && D.loja.whats ? `<a class="btn green" style="margin-top:20px" href="https://wa.me/${waNum(D.loja.whats)}" target="_blank" rel="noopener">Pedir pelo WhatsApp</a>` : ""}</div></div>`;
+    $("#fab").classList.add("hidden"); renderBar(); return;
+  }
   if (!D) {
     document.title = "Cardápio";
     $("#root").innerHTML = `<div class="setup"><div><div class="logo" style="margin:0 auto">🍽️</div><h2 style="margin-top:16px">Cardápio em breve</h2><p class="muted" style="margin-top:6px">Esta loja ainda está montando o cardápio. Volte daqui a pouco!</p></div></div>`;
@@ -236,7 +245,7 @@ function render() {
   renderBar();
 }
 
-const PRO = () => (window.APP_CONFIG && window.APP_CONFIG.plano) !== "essencial";
+const PRO = () => Store.plano() === "pro";
 function cardProd(p) {
   const temOp = (p.grupos || []).some((g) => g.opcoes.some((o) => o.preco > 0));
   const preco = Number(p.preco) > 0 ? brl(p.preco) : "";
@@ -578,7 +587,7 @@ function mensagem(p) {
 $("#root").innerHTML = `<div class="load">Carregando cardápio…</div>`;
 Store.onErro((m) => toast(m));
 Store.ready(() => {
-  if ((window.APP_CONFIG || {}).demo) window.montarDemo();
+  if (!Store.nuvem) window.montarDemo();
   render();
   Store.onChange(() => { const open = document.querySelector(".sheet.open"); if (!open) render(); else D = Store.get(); });
 });

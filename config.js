@@ -1,33 +1,22 @@
 // =====================================================
-//  CONFIGURAÇÃO DESTA CÓPIA DO APP (uma por cliente)
+//  CONFIGURAÇÃO GERAL DO SISTEMA
+//  Cada loja é criada pelo próprio dono no painel.
+//  Cardápio de uma loja:  index.html?l=link-da-loja
+//  Demonstração (sem ?l=): loja de exemplo salva no aparelho
 // =====================================================
 window.APP_CONFIG = {
-  // Identificador da loja (sem espaço). Ex.: "burgerdoze"
-  lojaId: "minhaloja",
-
-  // Plano contratado: "essencial" ou "pro"
+  // Plano usado na demonstração
   plano: "pro",
 
-  // true = mostra uma loja de exemplo quando ainda não tem cardápio (só pra demonstração)
-  demo: true,
+  // E-mails que podem abrir o painel mestre (master.html).
+  // Precisam estar verificados.
+  masters: ["samuelijoi42@gmail.com", "samujo2pi@gmail.com"],
 
-  // Cole aqui a configuração do Firebase do projeto.
-  // Deixe null para usar o modo demonstração (salva só no aparelho).
-  firebase: null
-  // firebase: {
-  //   apiKey: "...",
-  //   authDomain: "...",
-  //   projectId: "...",
-  //   appId: "..."
-  // }
-};
-
-// Carrega o Firebase só quando estiver configurado.
-(function () {
-  var c = window.APP_CONFIG;
-  if (c.firebase && c.firebase.apiKey && !window.firebase) {
-    ["app", "auth", "firestore"].forEach(function (m) {
-      document.write('<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-' + m + '-compat.js"><\/script>');
-    });
+  // Banco de dados (Firebase, plano grátis Spark)
+  firebase: {
+    apiKey: "AIzaSyDk6mMm2asGo69CS57yodav45_oXL_NimQ",
+    authDomain: "cardapio-direto.firebaseapp.com",
+    projectId: "cardapio-direto",
+    appId: "1:139945601542:web:d61ff70a2a039543f87187"
   }
-})();
+};
