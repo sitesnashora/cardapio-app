@@ -578,6 +578,7 @@ function mensagem(p) {
 $("#root").innerHTML = `<div class="load">Carregando cardápio…</div>`;
 Store.onErro((m) => toast(m));
 Store.ready(() => {
+  if ((window.APP_CONFIG || {}).demo) window.montarDemo();
   render();
   Store.onChange(() => { const open = document.querySelector(".sheet.open"); if (!open) render(); else D = Store.get(); });
 });

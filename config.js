@@ -8,6 +8,9 @@ window.APP_CONFIG = {
   // Plano contratado: "essencial" ou "pro"
   plano: "pro",
 
+  // true = mostra uma loja de exemplo quando ainda não tem cardápio (só pra demonstração)
+  demo: true,
+
   // Cole aqui a configuração do Firebase do projeto.
   // Deixe null para usar o modo demonstração (salva só no aparelho).
   firebase: null

@@ -723,6 +723,7 @@ window.addEventListener("beforeunload", (e) => { if (sujo) { e.preventDefault();
 $("#root").innerHTML = `<div class="gate"><p class="muted">Carregando…</p></div>`;
 Store.onErro((m) => toast(m));
 Store.ready(() => {
+  if ((window.APP_CONFIG || {}).demo) window.montarDemo();
   inicio();
   if (Store.nuvem) Store.onChange(() => { const u = Store.usuario(); if (u !== ultUser || (!iniciado && u && Store.get())) { ultUser = u; if (!u) { iniciado = false; } inicio(); } });
 });

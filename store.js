@@ -348,3 +348,17 @@ window.aplicarCor = function (cor) {
 };
 
 window.preencher = (tpl, o) => String(tpl || "").replace(/\{nome\}/g, (o.nome || "").split(" ")[0]).replace(/\{numero\}/g, o.num || "").replace(/\{total\}/g, brl(o.total)).replace(/\{loja\}/g, o.loja || "");
+
+// Loja de exemplo (só quando APP_CONFIG.demo = true e ainda não há cardápio)
+window.montarDemo = function() {
+  if (Store.nuvem || Store.get()) return;
+  const d = Store.criar({ nome: "Burger do Zé", segmento: "hamburgueria", whats: "5533998628718" });
+  const x = Store.get();
+  Object.assign(x.loja, { modo: "aberta", slogan: "Smash e artesanal na chapa", endereco: "Rua das Flores, 120 - Centro", cidade: "Mantena",
+    taxas: [{ bairro: "Centro", valor: 5 }, { bairro: "Vila Nova", valor: 6 }, { bairro: "São José", valor: 7 }],
+    chavePix: "pedidos@burgerdoze.com", aviso: "Esta é uma loja de demonstração. Os pedidos chegam no WhatsApp do desenvolvedor.",
+    banner: { ativo: true, titulo: "Terça do Smash", texto: "Use o cupom BEMVINDO10 e ganhe 10% off" },
+    slides: [{ img: null, titulo: "Combo Clássico por R$ 44,90", texto: "Burger + batata + refri. Toque pra pedir", pid: (x.produtos.find((p) => p.nome === "Combo Clássico") || {}).id || "" },
+             { img: null, titulo: "Peça sem sair de casa", texto: "Entregamos no Centro, Vila Nova e São José", pid: "" }] });
+  Store.save(x);
+};
