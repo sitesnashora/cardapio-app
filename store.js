@@ -188,7 +188,7 @@
   window.addEventListener("storage", (e) => { if (!NUVEM && e.key && e.key.startsWith(K(""))) emit(); });
 
   // ---------- imagens ficam em documentos separados na nuvem ----------
-  const C = { dados: null, assinatura: null, owner: null, existe: false, pedidos: [], imgs: {}, user: null, minhaLoja: undefined, vistos: {} };
+  const C = { dados: null, assinatura: null, owner: null, existe: false, pedidos: [], caixas: [], imgs: {}, user: null, minhaLoja: undefined, vistos: {} };
   const hash = (str) => { let h = 5381; for (let i = 0; i < str.length; i += 7) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36) + str.length.toString(36); };
   function extrairImgs(d) {
     const novas = {};
@@ -203,8 +203,8 @@
   let db = null, auth = null, lojaRef = null, pronto = false;
   const prontoCbs = [];
   function marcarPronto() { if (pronto) return; pronto = true; prontoCbs.splice(0).forEach((f) => f()); }
-  let subs = [], unsubPed = null;
-  const limparSubs = () => { subs.forEach((u) => { try { u(); } catch (e) {} }); subs = []; if (unsubPed) { unsubPed(); unsubPed = null; } };
+  let subs = [], unsubPed = null, unsubCx = null;
+  const limparSubs = () => { subs.forEach((u) => { try { u(); } catch (e) {} }); subs = []; if (unsubPed) { unsubPed(); unsubPed = null; } if (unsubCx) { unsubCx(); unsubCx = null; } C.caixas = []; };
 
   function usarLoja(id, cb) {
     limparSubs(); LOJA_ID = id; C.dados = null; C.assinatura = null; C.owner = null; C.existe = false; C.pedidos = []; C.imgs = {};
@@ -304,6 +304,17 @@
       unsubPed = lojaRef.collection("pedidos").orderBy("criado", "desc").limit(300).onSnapshot((qs) => {
         C.pedidos = qs.docs.map((d) => ({ ...d.data(), id: d.id })); emit();
       }, (e) => erro(/permission/i.test(e.message) ? "Esta conta não é dona desta loja." : "Erro ao carregar pedidos."));
+      unsubCx = lojaRef.collection("caixa").orderBy("aberto", "desc").limit(90).onSnapshot((qs) => {
+        C.caixas = qs.docs.map((d) => ({ ...d.data(), id: d.id })); emit();
+      }, () => {});
+    },
+
+    // ----- caixa (só o dono vê) -----
+    caixas() { return NUVEM ? C.caixas.slice() : read("caixas", []).sort((a, b) => b.aberto - a.aberto); },
+    salvarCaixa(cx) {
+      if (NUVEM) { const i = C.caixas.findIndex((x) => x.id === cx.id); if (i >= 0) C.caixas[i] = cx; else C.caixas.unshift(cx); emit();
+        const { id, ...dado } = cx; return lojaRef.collection("caixa").doc(id).set(dado).catch(() => erro("Não consegui salvar o caixa. Confira a internet.")); }
+      const l = read("caixas", []); const i = l.findIndex((x) => x.id === cx.id); if (i >= 0) l[i] = cx; else l.push(cx); write("caixas", l.slice(-90)); emit();
     },
 
     // ----- painel mestre -----

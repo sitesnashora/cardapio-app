@@ -7,13 +7,13 @@
 <meta name="theme-color" content="#0f0d0c">
 <meta name="robots" content="noindex">
 <link rel="manifest" href="manifest-admin.json">
-<link rel="icon" href="icon.svg?v=7" type="image/svg+xml">
+<link rel="icon" href="icon.svg?v=8" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=7">
+<link rel="stylesheet" href="app.css?v=8">
 <style>
 body{background:#0c0a09}
 .top{position:sticky;top:0;z-index:20;background:rgba(12,10,9,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
@@ -120,6 +120,8 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 .linkbox{display:flex;gap:8px;margin-top:6px}
 .linkbox .i{font-size:14px}
 .hint{color:var(--muted);font-size:.78rem;margin-top:5px}
+.cxbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.cxbtns .mini{justify-content:center;text-align:center;padding:11px 6px}
 .manitem{display:grid;grid-template-columns:1fr 64px 34px;gap:6px;margin-top:6px}
 </style>
 </head>
@@ -127,6 +129,7 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 <div id="root"></div>
 <div class="sheet" id="shEd"><div class="panel tall" id="pnEd"></div></div>
 <div class="sheet" id="shMan"><div class="panel tall" id="pnMan"></div></div>
+<div class="sheet" id="shCx"><div class="panel" id="pnCx"></div></div>
 <div class="sheet" id="shSt"><div class="panel" id="pnSt"></div></div>
 <div class="sheet" id="shAsk" style="align-items:center;padding:20px"><div class="panel" style="border-radius:20px;max-width:380px" id="pnAsk"></div></div>
 <div class="savebar" id="savebar"><button class="btn" id="saveBtn">Salvar alterações</button></div>
@@ -138,9 +141,9 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>window.APP_PAGE = "painel";</script>
-<script src="config.js?v=7"></script>
-<script src="art.js?v=7"></script>
-<script src="store.js?v=7"></script>
+<script src="config.js?v=8"></script>
+<script src="art.js?v=8"></script>
+<script src="store.js?v=8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
@@ -236,7 +239,7 @@ function setup() {
   let seg = "hamburgueria", cor = Store.MODELOS.hamburgueria.cor;
   const draw = () => {
     $("#root").innerHTML = `<div class="gate"><div class="gbox">
-      <img src="icon.svg?v=7" alt="" width="44" height="44" style="border-radius:12px;display:block;margin-bottom:14px">
+      <img src="icon.svg?v=8" alt="" width="44" height="44" style="border-radius:12px;display:block;margin-bottom:14px">
       <h1>Vamos montar seu cardápio</h1><p class="muted" style="margin-top:6px">Leva 1 minuto. Tudo pode ser mudado depois no painel.</p>
       <label class="f">Nome da loja</label><input class="i" id="sNome" placeholder="Ex.: Burger do Zé" value="${esc(window._sn || "")}">
       <label class="f">WhatsApp que vai receber os pedidos</label><input class="i" id="sWa" inputmode="tel" placeholder="(00) 9 0000-0000" value="${esc(window._sw || "")}">
@@ -285,7 +288,7 @@ function loginNuvem() {
   aplicarCor("#ff5a1f");
   const criar = modoLogin === "criar";
   $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center">
-    <img src="icon.svg?v=7" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto">
+    <img src="icon.svg?v=8" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto">
     <p style="font-weight:800;margin-top:10px;letter-spacing:-.01em">Cardápio Direto</p>
     <h1 style="margin-top:14px">${criar ? "Crie sua loja" : "Entrar no painel"}</h1>
     <p class="muted">${criar ? "Cardápio digital com pedidos no WhatsApp. 3 dias grátis." : "Use o e-mail e a senha da sua loja"}</p>
@@ -336,6 +339,7 @@ function app() {
     ${[["pedidos", "Pedidos", '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],
        ["cardapio", "Cardápio", '<path d="M4 5h16M4 12h16M4 19h10"/>'],
        ["loja", "Loja", '<path d="M3 9l2-5h14l2 5M4 9v11h16V9M3 9h18M9 20v-6h6v6"/>'],
+       ["caixa", "Caixa", '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 12h18M8 7V4h8v3M12 15v2"/>'],
        ["cupons", "Cupons", '<path d="M3 8a2 2 0 0 0 0 4v4h18v-4a2 2 0 0 0 0-4V4H3z"/><path d="M14 4v16" stroke-dasharray="2 2"/>'],
        ["resumo", "Resumo", '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>']]
       .map(([k, t, p]) => `<button data-tab="${k}" class="${tab === k ? "on" : ""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${p}</svg>${t}${k === "pedidos" ? '<em id="nNovos" class="hidden"></em>' : ""}</button>`).join("")}
@@ -350,7 +354,7 @@ function app() {
   seen = new Set(Store.pedidos().map((p) => p.id)); iniciado = true;
   if (!window._ouvindo) {
     window._ouvindo = true;
-    Store.onChange(() => { D = Store.get(); if (!D || !$("#main")) return; checarNovos(); renderTopo(); if (tab === "pedidos" || tab === "resumo") renderTab(); });
+    Store.onChange(() => { D = Store.get(); if (!D || !$("#main")) return; checarNovos(); renderTopo(); if (tab === "pedidos" || tab === "resumo" || (tab === "caixa" && !(document.activeElement && document.activeElement.closest("#main input")))) renderTab(); });
     setInterval(() => { if (!$("#main")) return; checarNovos(); if (tab === "pedidos" && !document.querySelector(".sheet.open")) renderPedidos(); renderTopo(); }, 5000);
   }
 }
@@ -386,7 +390,7 @@ function checarNovos() {
   novos.forEach((p) => seen.add(p.id));
   if (novos.length) { beep(); toast(`🔔 Novo pedido #${novos[0].num} · ${novos[0].nome}`); document.title = "🔔 Novo pedido!"; setTimeout(() => document.title = "Painel da loja", 9000); }
 }
-function renderTab() { if (!$("#main")) return; ({ pedidos: renderPedidos, cardapio: renderCardapio, loja: renderLoja, cupons: renderCupons, resumo: renderResumo })[tab](); }
+function renderTab() { if (!$("#main")) return; ({ pedidos: renderPedidos, cardapio: renderCardapio, loja: renderLoja, cupons: renderCupons, resumo: renderResumo, caixa: renderCaixa })[tab](); }
 
 // ================= PEDIDOS =================
 const STT = { novo: "Novo", preparo: "Em preparo", saiu: "Saiu p/ entrega", pronto: "Pronto p/ retirar", entregue: "Finalizado", cancelado: "Cancelado" };
@@ -404,10 +408,12 @@ function renderPedidos() {
   $("#main").innerHTML = `
     <div class="chips"><button class="chip ${filtro === "ativos" ? "on" : ""}" data-f="ativos">Em andamento<em>${ativos.length}</em></button>
       <button class="chip ${filtro === "fin" ? "on" : ""}" data-f="fin">Finalizados</button><button class="chip ${filtro === "todos" ? "on" : ""}" data-f="todos">Todos</button></div>
+    ${PRO() && !caixaAberto() ? `<button class="card" id="irCaixa" style="width:100%;text-align:left;display:flex;gap:10px;align-items:center;margin-top:10px;border-color:color-mix(in srgb,var(--warn) 40%,var(--line))"><span style="font-size:1.3rem">💰</span><span style="flex:1"><b>Caixa fechado</b><br><small class="muted">Toque pra abrir o caixa do dia</small></span><span class="muted">›</span></button>` : ""}
     <button class="btn full ghost" id="novoMan" style="margin-top:10px">+ Lançar pedido manual (balcão / telefone)</button>
     ${list.length ? list.map(cardPedido).join("") : `<div class="empty">${filtro === "ativos" ? "Nenhum pedido em andamento.<br>Quando chegar um, toca um alarme aqui 🔔<br><br><small>Deixe esta tela aberta no celular ou computador da loja.</small>" : "Nada por aqui ainda."}</div>`}`;
   document.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { filtro = b.dataset.f; renderPedidos(); });
   $("#novoMan").onclick = pedidoManual;
+  if ($("#irCaixa")) $("#irCaixa").onclick = () => irPara("caixa");
   document.querySelectorAll("[data-st]").forEach((b) => b.onclick = () => mudarStatus(b.dataset.st, b.dataset.to));
   document.querySelectorAll("[data-cancel]").forEach((b) => b.onclick = async () => { if (await confirmar("Cancelar este pedido?", "Cancelar pedido")) mudarStatus(b.dataset.cancel, "cancelado"); });
   document.querySelectorAll("[data-print]").forEach((b) => b.onclick = () => imprimir(b.dataset.print));
@@ -417,7 +423,10 @@ function msgStatusLink(p, st) {
   return `https://wa.me/${waNum(p.whats)}?text=${encodeURIComponent(preencher(tpl, { ...p, loja: D.loja.nome }))}`;
 }
 function mudarStatus(id, st) {
-  Store.updPedido(id, { status: st, ["t_" + st]: Date.now() });
+  const p0 = Store.pedido(id), patch = { status: st, ["t_" + st]: Date.now() };
+  if (st === "preparo" && p0 && !p0.baixa) { mexerEstoque(p0, -1); patch.baixa = true; }
+  if (st === "cancelado" && p0 && p0.baixa) { mexerEstoque(p0, 1); patch.baixa = false; }
+  Store.updPedido(id, patch);
   const p = Store.pedido(id);
   const link = msgStatusLink(p, st);
   toast(`Pedido #${p.num}: ${STT[st]}${link ? " · toque em Avisar cliente" : ""}`);
@@ -477,7 +486,7 @@ function pedidoManual() {
       const ok = itens.filter((it) => it.pid); if (!ok.length) { $("#mErr").textContent = "Escolha pelo menos um item."; $("#mErr").classList.remove("hidden"); return; }
       const [s, tx] = tot();
       Store.addPedido({ origem: "manual", nome: $("#mNome").value.trim() || "Cliente balcão", whats: soDig($("#mWa").value), tipo: $("#mTipo").value, end: $("#mEnd").value, bairro: $("#mBairro").value, ref: "", pag: $("#mPag").value, troco: "",
-        itens: ok.map((it) => { const p = D.produtos.find((x) => x.id === it.pid); return { nome: p.nome, qtd: it.qtd, unit: p.preco, opcoes: [], obs: "" }; }), subtotal: s, desconto: 0, taxa: tx, total: s + tx });
+        itens: ok.map((it) => { const p = D.produtos.find((x) => x.id === it.pid); return { pid: p.id, nome: p.nome, qtd: it.qtd, unit: p.preco, opcoes: [], obs: "" }; }), subtotal: s, desconto: 0, taxa: tx, total: s + tx });
       window._mn = ""; fechar("shMan"); filtro = "ativos"; toast("Pedido lançado");
     };
   };
@@ -494,7 +503,7 @@ function renderCardapio() {
         <input value="${esc(c.nome)}" data-cn="${c.id}" aria-label="Nome da categoria">
         <button class="ib" data-cu="${ci}" ${ci ? "" : "disabled style='opacity:.25'"}>${ICO.up}</button><button class="ib" data-cd="${ci}" ${ci < D.categorias.length - 1 ? "" : "disabled style='opacity:.25'"}>${ICO.down}</button><button class="ib" data-cx="${c.id}">${ICO.del}</button></div>
       ${D.produtos.filter((p) => p.cat === c.id).map((p) => `<div class="pr ${p.ativo ? "" : "off"}"><div class="ph">${fotoProduto(p)}</div>
-        <div class="tx" data-ed="${p.id}"><b>${esc(p.nome)}</b><small>${brl(p.preco)}${(p.grupos || []).length ? ` · ${p.grupos.length} grupo(s) de opções` : ""}${p.ativo ? "" : " · esgotado"}</small></div>
+        <div class="tx" data-ed="${p.id}"><b>${esc(p.nome)}</b><small>${brl(p.preco)}${(p.grupos || []).length ? ` · ${p.grupos.length} grupo(s) de opções` : ""}${p.estoque != null ? ` · <span style="color:${p.estoque <= 3 ? "var(--bad)" : "inherit"}">${p.estoque} em estoque</span>` : ""}${p.ativo ? "" : " · esgotado"}</small></div>
         <button class="tg ${p.ativo ? "on" : ""}" data-pa="${p.id}" aria-label="Disponível"></button><button class="ib" data-ed="${p.id}">${ICO.edit}</button></div>`).join("")}
       <button class="addp" data-np="${c.id}">+ Adicionar produto em ${esc(c.nome)}</button></div>`).join("")}
     <button class="btn full ghost" id="novaCat" style="margin-top:14px">+ Nova categoria</button>`;
@@ -527,6 +536,8 @@ function editarProduto(id, catId) {
       <div class="row2"><div><label class="f">Preço (R$)</label><input class="i" data-p="preco" inputmode="decimal" value="${String(P.preco).replace(".", ",")}"></div>
         <div><label class="f">Categoria</label><select class="i" data-p="cat">${D.categorias.map((c) => `<option value="${c.id}" ${P.cat === c.id ? "selected" : ""}>${esc(c.nome)}</option>`).join("")}</select></div></div>
       <label class="f">Etiqueta (opcional)</label><input class="i" data-p="tag" value="${esc(P.tag)}" placeholder="Ex.: Mais vendido, Novo, Promoção" maxlength="18">
+      <label class="f">Estoque (opcional)</label><input class="i" data-p="estoque" inputmode="numeric" value="${P.estoque == null ? "" : P.estoque}" placeholder="Deixe vazio se não controla">
+      <p class="hint">Baixa sozinho quando você aceita o pedido. Chegou a 0, vira esgotado.</p>
       <div class="setrow" style="border:0;margin-top:6px"><div class="tx"><b>Disponível</b><small>Desligue quando acabar (aparece como esgotado)</small></div><button class="tg ${P.ativo ? "on" : ""}" id="eAtivo"></button></div>
 
       <div class="secT"><h2>Opções do produto</h2></div>
@@ -547,7 +558,7 @@ function editarProduto(id, catId) {
     </div>
     <div class="pfoot"><button class="btn full" id="eSalvar">Salvar produto</button></div>`;
     const pn = $("#pnEd");
-    pn.querySelectorAll("[data-p]").forEach((i) => i.oninput = i.onchange = () => { P[i.dataset.p] = i.dataset.p === "preco" ? num(i.value) : i.value; });
+    pn.querySelectorAll("[data-p]").forEach((i) => i.oninput = i.onchange = () => { const k = i.dataset.p; P[k] = k === "preco" ? num(i.value) : k === "estoque" ? (i.value.trim() === "" ? null : Math.max(0, parseInt(i.value) || 0)) : i.value; });
     pn.querySelectorAll("[data-gk]").forEach((i) => i.onchange = () => { const g = P.grupos[+i.dataset.g]; const k = i.dataset.gk; g[k] = k === "min" || k === "max" ? Math.max(k === "max" ? 1 : 0, parseInt(i.value) || 0) : i.value; if (k !== "nome") draw(); });
     pn.querySelectorAll("[data-ok]").forEach((i) => i.oninput = () => { const [gi, oi] = i.dataset.o.split(".").map(Number); P.grupos[gi].opcoes[oi][i.dataset.ok] = i.dataset.ok === "preco" ? num(i.value) : i.value; });
     pn.querySelectorAll("[data-ox]").forEach((b) => b.onclick = () => { const [gi, oi] = b.dataset.ox.split(".").map(Number); P.grupos[gi].opcoes.splice(oi, 1); draw(); });
@@ -571,6 +582,7 @@ function editarProduto(id, catId) {
         g.max = Math.min(Math.max(1, g.max), g.opcoes.length); g.min = Math.min(g.min, g.max);
       }
       P.nome = P.nome.trim(); P.preco = num(P.preco);
+      if (P.estoque === 0) P.ativo = false;
       D = Store.get(); const i = D.produtos.findIndex((x) => x.id === P.id);
       if (i >= 0) D.produtos[i] = P; else D.produtos.push(P);
       if (Store.save(D)) { fechar("shEd"); toast("Produto salvo"); renderCardapio(); }
@@ -738,6 +750,123 @@ function renderCupons() {
   };
 }
 
+
+// ================= ESTOQUE =================
+function mexerEstoque(ped, sinal) {
+  const d = Store.get(); let mudou = false; const acabou = [];
+  (ped.itens || []).forEach((i) => {
+    const p = d.produtos.find((x) => (i.pid && x.id === i.pid)) || d.produtos.find((x) => x.nome === i.nome);
+    if (!p || p.estoque == null) return;
+    p.estoque = Math.max(0, p.estoque + sinal * i.qtd); mudou = true;
+    if (p.estoque === 0 && p.ativo) { p.ativo = false; acabou.push(p.nome); }
+    if (p.estoque > 0 && sinal > 0 && !p.ativo) p.ativo = true;
+  });
+  if (mudou) { Store.save(d); D = d; }
+  if (acabou.length) setTimeout(() => toast(`Acabou no estoque: ${acabou.join(", ")} (marcado como esgotado)`), 1200);
+}
+
+// ================= CAIXA =================
+const FORMAS = [["pix", "Pix"], ["dinheiro", "Dinheiro"], ["cartao", "Cartão"], ["outro", "Outros"]];
+const MOV = { suprimento: ["Suprimento", "+", "Dinheiro colocado na gaveta"], sangria: ["Sangria", "−", "Dinheiro retirado da gaveta"], despesa: ["Despesa", "−", "Gasto pago com dinheiro do caixa"] };
+const formaDe = (pag) => { const t = String(pag || "").toLowerCase(); return /pix/.test(t) ? "pix" : /dinheiro/.test(t) ? "dinheiro" : /cart/.test(t) ? "cartao" : "outro"; };
+const caixaAberto = () => Store.caixas().find((c) => !c.fechado);
+const hora = (t) => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+const dataH = (t) => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+function irPara(k) { const b = document.querySelector(`[data-tab="${k}"]`); if (b) b.click(); }
+function contasCaixa(cx) {
+  if (cx.fechado && cx.resumo) return cx.resumo;
+  const fim = cx.fechado || Infinity;
+  const no = Store.pedidos().filter((p) => p.criado >= cx.aberto && p.criado <= fim);
+  const peds = no.filter((p) => p.status !== "cancelado");
+  const por = { pix: 0, dinheiro: 0, cartao: 0, outro: 0 }; peds.forEach((p) => { por[formaDe(p.pag)] += p.total; });
+  const m = (t) => (cx.movs || []).filter((x) => x.tipo === t).reduce((s, x) => s + x.valor, 0);
+  const vendas = peds.reduce((s, p) => s + p.total, 0), sup = m("suprimento"), sang = m("sangria"), desp = m("despesa");
+  return { qtd: peds.length, canc: no.length - peds.length, vendas, por, sup, sang, desp, gaveta: (cx.inicial || 0) + por.dinheiro + sup - sang - desp };
+}
+function formCx(titulo, campos, ok) {
+  return new Promise((res) => {
+    $("#pnCx").innerHTML = `<div class="phead"><button class="x" data-x="shCx">←</button><h3>${esc(titulo)}</h3></div><div class="pbody">
+      ${campos.map((c, i) => `<label class="f">${esc(c.rot)}</label><input class="i" data-fc="${i}" ${c.num ? 'inputmode="decimal"' : ""} placeholder="${esc(c.ph || "")}" value="${esc(c.val || "")}">${c.dica ? `<p class="hint">${c.dica}</p>` : ""}`).join("")}
+      <div id="fcExtra"></div><p class="err hidden" id="fcErr"></p>
+      <button class="btn full" id="fcOk" style="margin-top:16px">${esc(ok)}</button></div>`;
+    const ler = () => campos.map((c, i) => c.num ? num($(`[data-fc="${i}"]`).value) : $(`[data-fc="${i}"]`).value.trim());
+    if (campos.onInput) $("#pnCx").querySelectorAll("[data-fc]").forEach((i) => i.oninput = () => campos.onInput(ler()));
+    if (campos.onInput) campos.onInput(ler());
+    $("#fcOk").onclick = () => { const v = ler(); const er = campos.validar && campos.validar(v); if (er) { $("#fcErr").textContent = er; $("#fcErr").classList.remove("hidden"); return; } fechar("shCx"); res(v); };
+    const sh = $("#shCx"), obs = new MutationObserver(() => { if (!sh.classList.contains("open")) { obs.disconnect(); res(null); } });
+    abrir("shCx"); obs.observe(sh, { attributes: true, attributeFilter: ["class"] });
+    setTimeout(() => { const f = $('[data-fc="0"]'); if (f) f.focus(); }, 150);
+  });
+}
+function renderCaixa() {
+  D = Store.get();
+  if (!PRO()) { $("#main").innerHTML = `<div class="secT"><h2>Caixa</h2></div>${bloqueio("Controle de caixa, sangria e despesas")}`; return; }
+  const cx = caixaAberto(), hist = Store.caixas().filter((c) => c.fechado).slice(0, 30);
+  const histHtml = `<div class="secT"><h2>Caixas anteriores</h2></div><div class="card">${hist.length ? hist.map((c) => { const r = contasCaixa(c), dif = (c.contado ?? r.gaveta) - r.gaveta;
+      return `<div class="cli"><div class="tx"><b>${new Date(c.aberto).toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit" })} · ${hora(c.aberto)}–${hora(c.fechado)}</b><small>${r.qtd} pedido(s) · ${brl(r.vendas)}${Math.abs(dif) >= 0.01 ? ` · <span style="color:${dif < 0 ? "var(--bad)" : "#6fe3a0"}">${dif < 0 ? "faltou" : "sobrou"} ${brl(Math.abs(dif))}</span>` : " · conferido ✓"}</small></div><button class="mini" data-cxp="${c.id}">🖨️</button></div>`; }).join("") : `<p class="muted">Quando você fechar um caixa, ele aparece aqui.</p>`}</div>`;
+  if (!cx) {
+    $("#main").innerHTML = `<div class="secT"><h2>Caixa</h2></div>
+      <div class="card" style="text-align:center;padding:22px"><div style="font-size:2rem">💰</div><b>Caixa fechado</b>
+        <p class="muted" style="font-size:.88rem;margin-top:4px">Abra no começo do expediente. Tudo que vender a partir daí entra na conta do caixa.</p>
+        <label class="f" style="text-align:left">Troco inicial na gaveta (R$)</label><input class="i" id="cxIni" inputmode="decimal" placeholder="0,00">
+        <button class="btn full" id="cxAbrir" style="margin-top:12px">Abrir caixa</button></div>${histHtml}`;
+    $("#cxAbrir").onclick = () => { Store.salvarCaixa({ id: Store.uid(), aberto: Date.now(), fechado: null, inicial: num($("#cxIni").value), movs: [] }); toast("Caixa aberto ✓"); renderCaixa(); };
+  } else {
+    const r = contasCaixa(cx);
+    $("#main").innerHTML = `<div class="secT"><h2>Caixa aberto</h2><span class="muted" style="font-size:.82rem">desde ${dataH(cx.aberto)}</span></div>
+      <div class="kp"><div class="k"><small>Vendas</small><b>${brl(r.vendas)}</b><span>${r.qtd} pedido(s)${r.canc ? ` · ${r.canc} cancelado(s)` : ""}</span></div>
+        <div class="k"><small>Dinheiro na gaveta</small><b>${brl(r.gaveta)}</b><span>o que deve ter agora</span></div></div>
+      <div class="card"><b>Por forma de pagamento</b>${FORMAS.filter(([k]) => k !== "outro" || r.por.outro).map(([k, n]) => `<div class="line"><span>${n}</span><b>${brl(r.por[k])}</b></div>`).join("")}</div>
+      <div class="card"><b>Gaveta (dinheiro)</b>
+        <div class="line"><span>Troco inicial</span><span>${brl(cx.inicial)}</span></div>
+        <div class="line"><span>+ Vendas em dinheiro</span><span>${brl(r.por.dinheiro)}</span></div>
+        ${r.sup ? `<div class="line"><span>+ Suprimentos</span><span>${brl(r.sup)}</span></div>` : ""}
+        ${r.sang ? `<div class="line"><span>− Sangrias</span><span>${brl(r.sang)}</span></div>` : ""}
+        ${r.desp ? `<div class="line"><span>− Despesas</span><span>${brl(r.desp)}</span></div>` : ""}
+        <div class="line" style="font-weight:800;border-top:1px dashed var(--line);margin-top:4px;padding-top:8px"><span>Deve ter na gaveta</span><span>${brl(r.gaveta)}</span></div></div>
+      <button class="btn full ghost" id="cxVenda" style="margin-top:12px">+ Venda no balcão</button>
+      <div class="cxbtns"><button class="mini" data-mv="suprimento">＋ Suprimento</button><button class="mini" data-mv="sangria">− Sangria</button><button class="mini" data-mv="despesa">− Despesa</button></div>
+      ${(cx.movs || []).length ? `<div class="secT"><h2>Movimentações</h2></div><div class="card">${cx.movs.slice().reverse().map((m) => `<div class="cli"><div class="tx"><b>${MOV[m.tipo][0]}${m.desc ? ` · ${esc(m.desc)}` : ""}</b><small>${hora(m.t)}</small></div><b style="color:${m.tipo === "suprimento" ? "#6fe3a0" : "var(--bad)"}">${MOV[m.tipo][1]} ${brl(m.valor)}</b><button class="ib" data-mvx="${m.id}">${ICO.del}</button></div>`).join("")}</div>` : ""}
+      <button class="btn full" id="cxFechar" style="margin-top:16px;background:var(--bad)">Fechar caixa</button>
+      ${histHtml}`;
+    $("#cxVenda").onclick = pedidoManual;
+    document.querySelectorAll("[data-mv]").forEach((b) => b.onclick = async () => {
+      const t = b.dataset.mv; const campos = [{ rot: "Valor (R$)", num: true, ph: "0,00" }, { rot: t === "despesa" ? "Com o quê?" : "Motivo (opcional)", ph: t === "despesa" ? "Ex.: gás, pão, motoboy" : t === "sangria" ? "Ex.: depósito, pagamento" : "Ex.: troco extra", dica: MOV[t][2] }];
+      campos.validar = (v) => v[0] <= 0 ? "Coloque o valor." : t === "despesa" && !v[1] ? "Escreva com o que foi o gasto." : "";
+      const v = await formCx(MOV[t][0], campos, "Lançar"); if (!v) return;
+      const c = caixaAberto(); if (!c) return; c.movs = [...(c.movs || []), { id: Store.uid(), tipo: t, valor: v[0], desc: v[1], t: Date.now() }];
+      Store.salvarCaixa(c); toast(`${MOV[t][0]} lançada`); renderCaixa();
+    });
+    document.querySelectorAll("[data-mvx]").forEach((b) => b.onclick = async () => { if (!(await confirmar("Apagar esta movimentação?", "Apagar"))) return; const c = caixaAberto(); c.movs = c.movs.filter((m) => m.id !== b.dataset.mvx); Store.salvarCaixa(c); renderCaixa(); });
+    $("#cxFechar").onclick = async () => {
+      const andam = Store.pedidos().filter((p) => p.criado >= cx.aberto && ["novo", "preparo", "saiu", "pronto"].includes(p.status)).length;
+      const campos = [{ rot: "Quanto tem de dinheiro na gaveta? (R$)", num: true, ph: "Conte o dinheiro", dica: `O sistema calcula que deveria ter <b>${brl(r.gaveta)}</b>.` }, { rot: "Observação (opcional)", ph: "Ex.: tudo certo" }];
+      campos.onInput = (v) => { const dif = v[0] - r.gaveta; $("#fcExtra").innerHTML = `${andam ? `<p class="hint" style="color:#ffd27a">⚠️ Ainda tem ${andam} pedido(s) em andamento. Eles entram neste caixa mesmo assim.</p>` : ""}${$('[data-fc="0"]').value.trim() ? `<div class="card"><div class="line"><span>Diferença</span><b style="color:${Math.abs(dif) < 0.01 ? "#6fe3a0" : dif < 0 ? "var(--bad)" : "#ffd27a"}">${Math.abs(dif) < 0.01 ? "Bateu certinho ✓" : (dif < 0 ? "Faltando " : "Sobrando ") + brl(Math.abs(dif))}</b></div></div>` : ""}`; };
+      campos.validar = (v) => !$('[data-fc="0"]').value.trim() ? "Conte o dinheiro e coloque o valor." : "";
+      const v = await formCx("Fechar caixa", campos, "Fechar e imprimir"); if (!v) return;
+      const c = caixaAberto(); if (!c) return;
+      c.fechado = Date.now(); c.resumo = contasCaixa({ ...c, fechado: null }); c.contado = v[0]; c.obs = v[1];
+      Store.salvarCaixa(c); toast("Caixa fechado ✓"); renderCaixa(); imprimirCaixa(c);
+    };
+  }
+  document.querySelectorAll("[data-cxp]").forEach((b) => b.onclick = () => imprimirCaixa(Store.caixas().find((c) => c.id === b.dataset.cxp)));
+}
+function imprimirCaixa(c) {
+  if (!c) return; const r = contasCaixa(c), dif = (c.contado ?? r.gaveta) - r.gaveta;
+  const w = window.open("", "_blank", "width=380,height=640"); if (!w) return toast("Libere pop-ups para imprimir");
+  const L = (a, b, bold) => `<div class="r">${bold ? `<b>${a}</b><b>${b}</b>` : `<span>${a}</span><span>${b}</span>`}</div>`;
+  w.document.write(`<html><head><title>Fechamento de caixa</title><style>body{font-family:monospace;width:72mm;margin:0 auto;font-size:13px}h2{text-align:center;margin:4px 0}hr{border:0;border-top:1px dashed #000}.r{display:flex;justify-content:space-between}</style></head><body>
+    <h2>${esc(D.loja.nome)}</h2><div style="text-align:center">FECHAMENTO DE CAIXA<br>${dataH(c.aberto)} até ${c.fechado ? dataH(c.fechado) : "agora"}</div><hr>
+    ${L("Pedidos", r.qtd)}${r.canc ? L("Cancelados", r.canc) : ""}${L("TOTAL VENDIDO", brl(r.vendas), 1)}<hr>
+    ${FORMAS.map(([k, n]) => L(n, brl(r.por[k]))).join("")}<hr>
+    ${L("Troco inicial", brl(c.inicial))}${L("+ Dinheiro vendas", brl(r.por.dinheiro))}${L("+ Suprimentos", brl(r.sup))}${L("- Sangrias", brl(r.sang))}${L("- Despesas", brl(r.desp))}
+    ${L("ESPERADO NA GAVETA", brl(r.gaveta), 1)}${c.contado != null ? L("CONTADO", brl(c.contado), 1) + L(Math.abs(dif) < 0.01 ? "Diferença" : dif < 0 ? "FALTOU" : "SOBROU", brl(Math.abs(dif)), 1) : ""}
+    ${(c.movs || []).length ? `<hr>${c.movs.map((m) => L(`${hora(m.t)} ${MOV[m.tipo][0]}${m.desc ? " " + esc(m.desc) : ""}`, `${MOV[m.tipo][1]}${brl(m.valor)}`)).join("")}` : ""}
+    ${c.obs ? `<hr><div>Obs: ${esc(c.obs)}</div>` : ""}<hr><div style="text-align:center">Assinatura: ____________________</div>
+    <script>window.onload=()=>{window.print()}<\/script></body></html>`);
+  w.document.close();
+}
+
 // ================= RESUMO =================
 function renderResumo() {
   const now = new Date();
@@ -745,6 +874,8 @@ function renderResumo() {
   const todos = Store.pedidos().filter((p) => p.criado >= ini);
   const ok = todos.filter((p) => p.status !== "cancelado");
   const fat = ok.reduce((s, p) => s + p.total, 0);
+  const desp = Store.caixas().flatMap((c) => (c.movs || []).filter((m) => m.tipo === "despesa" && m.t >= ini)).reduce((s, m) => s + m.valor, 0);
+  const baixo = Store.get().produtos.filter((p) => p.estoque != null && p.estoque <= 3);
   const top = {}; ok.forEach((p) => p.itens.forEach((i) => { top[i.nome] = top[i.nome] || { q: 0, v: 0 }; top[i.nome].q += i.qtd; top[i.nome].v += i.qtd * i.unit; }));
   const tl = Object.entries(top).sort((a, b) => b[1].q - a[1].q).slice(0, 8), mx = tl.length ? tl[0][1].q : 1;
   const pg = {}; ok.forEach((p) => pg[p.pag] = (pg[p.pag] || 0) + p.total);
@@ -755,7 +886,10 @@ function renderResumo() {
     <div class="kp"><div class="k"><small>Faturamento</small><b>${brl(fat)}</b><span>${ok.length} pedido(s)</span></div>
       <div class="k"><small>Ticket médio</small><b>${brl(ok.length ? fat / ok.length : 0)}</b><span>por pedido</span></div>
       <div class="k"><small>Entregas / retiradas</small><b>${tp.entrega || 0} / ${(tp.retirada || 0) + (tp.local || 0)}</b><span>no período</span></div>
-      <div class="k"><small>Cancelados</small><b>${todos.length - ok.length}</b><span>no período</span></div></div>
+      <div class="k"><small>Cancelados</small><b>${todos.length - ok.length}</b><span>no período</span></div>
+      ${PRO() ? `<div class="k"><small>Despesas</small><b>${brl(desp)}</b><span>lançadas no caixa</span></div>
+      <div class="k"><small>Sobra</small><b style="color:${fat - desp < 0 ? "var(--bad)" : "#6fe3a0"}">${brl(fat - desp)}</b><span>vendas − despesas</span></div>` : ""}</div>
+    ${baixo.length ? `<div class="card" style="border-color:color-mix(in srgb,var(--bad) 45%,var(--line))"><b>⚠️ Estoque baixo</b>${baixo.map((p) => `<div class="line"><span>${esc(p.nome)}</span><b>${p.estoque}</b></div>`).join("")}</div>` : ""}
     <div class="secT"><h2>Mais vendidos</h2></div><div class="card">${tl.length ? tl.map(([n, v]) => `<div style="padding:6px 0"><div class="line" style="padding:0"><span>${esc(n)}</span><b>${v.q}</b></div><div class="barra"><i style="width:${(v.q / mx) * 100}%"></i></div></div>`).join("") : `<p class="muted">Sem vendas nesse período.</p>`}</div>
     <div class="secT"><h2>Formas de pagamento</h2></div><div class="card">${Object.keys(pg).length ? Object.entries(pg).map(([n, v]) => `<div class="line"><span>${esc(n)}</span><b>${brl(v)}</b></div>`).join("") : `<p class="muted">—</p>`}</div>
     <div class="secT"><h2>Clientes</h2></div>${!PRO() ? bloqueio("Lista de clientes") : `<div class="card">${cls.length ? cls.map((c) => `<div class="cli"><div class="tx"><b>${esc(c.nome)}</b><small>${c.n} pedido(s) · ${brl(c.v)} · último ${ago(c.ult)}</small></div><a class="wa" href="https://wa.me/${waNum(c.whats)}?text=${encodeURIComponent(`Oi ${c.nome.split(" ")[0]}! Aqui é da ${D.loja.nome} 😄 Bateu a fome? Nosso cardápio: ${location.href.replace(/admin\.html.*$/, "")}`)}" target="_blank" rel="noopener">Chamar</a></div>`).join("") : `<p class="muted">Os clientes aparecem aqui conforme os pedidos chegam.</p>`}</div>`}

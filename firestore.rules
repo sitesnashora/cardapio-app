@@ -55,6 +55,11 @@ service cloud.firestore {
         allow write: if dono() || master();
       }
 
+      // caixa: so o dono e o administrador
+      match /caixa/{cx} {
+        allow read, write: if dono() || master();
+      }
+
       match /pedidos/{pedido} {
         allow get: if true;
         allow list: if dono() || master();
