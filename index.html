@@ -234,6 +234,7 @@ function render() {
       ${L.pedidoMinimo > 0 ? `<span>Pedido mínimo ${brl(L.pedidoMinimo)}</span>` : ""}
       ${L.endereco ? `<span>📍 ${esc(L.endereco)}</span>` : ""}
     </div>
+    ${MESA ? `<div class="aviso" style="background:color-mix(in srgb,var(--brand) 22%,transparent);border-color:var(--brand);font-weight:700">🍽️ Você está na ${MESA}. Escolha e peça por aqui, a gente leva até você.</div>` : ""}
     ${L.aviso ? `<div class="aviso">📢 ${esc(L.aviso)}</div>` : ""}
     ${!st.aberta && L.agendamento ? `<div class="aviso">Estamos fechados agora, mas você já pode deixar seu pedido agendado.</div>` : ""}
     ${slides.length ? `<div class="slides"><div class="strack" id="strack">${slides.map((x) => { const im = Store.img(x.img); return `<button class="slide" ${x.pid ? `data-p="${x.pid}"` : ""}>${im ? `<img src="${im}" alt="">` : ""}${x.titulo || x.texto ? `<div class="sx"><b>${esc(x.titulo)}</b>${x.texto ? `<span>${esc(x.texto)}</span>` : ""}</div>` : ""}</button>`; }).join("")}</div>${slides.length > 1 ? `<div class="dots" id="dots">${slides.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}</div>` : ""}
@@ -257,6 +258,7 @@ function render() {
 }
 
 const PRO = () => Store.plano() === "pro";
+const MESA = (() => { const m = new URLSearchParams(location.search).get("mesa"); return m && /^\d{1,3}$/.test(m) ? "Mesa " + (+m) : ""; })();
 function cardProd(p) {
   const temOp = (p.grupos || []).some((g) => g.opcoes.some((o) => o.preco > 0));
   const preco = Number(p.preco) > 0 ? brl(p.preco) : "";
@@ -495,9 +497,10 @@ function mostrarCupom(feedback) {
 // ================= FINALIZAR =================
 function abrirCheckout() {
   const L = D.loja, st = statusLoja(L);
-  if (!st.aberta && !L.agendamento) { toast("A loja está fechada agora"); return; }
-  if (!check.tipo) check.tipo = L.entrega ? "entrega" : L.retirada ? "retirada" : "local";
-  const pags = [L.pix && "Pix", L.dinheiro && "Dinheiro", L.cartao && "Cartão na entrega"].filter(Boolean);
+  if (!st.aberta && (!L.agendamento || MESA)) { toast("A loja está fechada agora"); return; }
+  if (MESA) check.tipo = "local";
+  else if (!check.tipo || (check.tipo === "local" && !L.consumoLocal)) check.tipo = L.entrega ? "entrega" : L.retirada ? "retirada" : "local";
+  const pags = MESA ? ["Na conta da mesa"] : [L.pix && "Pix", L.dinheiro && "Dinheiro", L.cartao && "Cartão na entrega"].filter(Boolean);
   if (!check.pag || !pags.includes(check.pag)) check.pag = pags[0];
   const cl = Store.cliente() || {};
   const horas = !st.aberta ? horariosAgendar(L) : [];
@@ -505,24 +508,25 @@ function abrirCheckout() {
   $("#pnCheck").innerHTML = `<div class="phead"><button class="x" data-x="shCheck">←</button><h3>Finalizar pedido</h3></div>
   <div class="pbody">
     <label class="f">Seu nome</label><input class="i" id="cNome" autocomplete="name" value="${esc(cl.nome || "")}" placeholder="Como te chamamos?">
-    <label class="f">Seu WhatsApp</label><input class="i" id="cWhats" inputmode="tel" autocomplete="tel" value="${esc(cl.whats || "")}" placeholder="(00) 9 0000-0000">
-    <label class="f">Como você quer receber?</label>
-    <div class="seg" id="segTipo">${[L.entrega && ["entrega", "🛵 Entrega"], L.retirada && ["retirada", "🏪 Retirar"], L.consumoLocal && ["local", "🍽️ No local"]].filter(Boolean).map(([v, t]) => `<button data-tipo="${v}" class="${check.tipo === v ? "on" : ""}">${t}</button>`).join("")}</div>
+    <label class="f">Seu WhatsApp${MESA ? " (opcional)" : ""}</label><input class="i" id="cWhats" inputmode="tel" autocomplete="tel" value="${esc(cl.whats || "")}" placeholder="(00) 9 0000-0000">
+    ${MESA ? `<div class="card" style="margin-top:12px"><b>🍽️ ${MESA}</b><p class="muted" style="font-size:.85rem;margin-top:2px">Seu pedido vai direto pra cozinha. Você paga quando fechar a conta.</p></div>` : ""}
+    <label class="f ${MESA ? "hidden" : ""}">Como você quer receber?</label>
+    <div class="seg ${MESA ? "hidden" : ""}" id="segTipo">${[L.entrega && ["entrega", "🛵 Entrega"], L.retirada && ["retirada", "🏪 Retirar"], L.consumoLocal && ["local", "🍽️ No local"]].filter(Boolean).map(([v, t]) => `<button data-tipo="${v}" class="${check.tipo === v ? "on" : ""}">${t}</button>`).join("")}</div>
     <div id="boxEnd" class="${check.tipo === "entrega" ? "" : "hidden"}">
       ${L.tipoTaxa === "bairro" ? `<label class="f">Bairro</label><select class="i" id="cBairro"><option value="">Selecione o bairro</option>${L.taxas.map((t, i) => `<option value="${i}" ${cl.bairro === t.bairro ? "selected" : ""}>${esc(t.bairro)} · ${t.valor > 0 ? brl(t.valor) : "grátis"}</option>`).join("")}</select>`
         : `<label class="f">Bairro</label><input class="i" id="cBairroTx" value="${esc(cl.bairro || "")}" placeholder="Seu bairro">`}
       <label class="f">Rua e número</label><input class="i" id="cEnd" autocomplete="street-address" value="${esc(cl.end || "")}" placeholder="Ex.: Rua Sete, 120">
       <label class="f">Complemento / referência</label><input class="i" id="cRef" value="${esc(cl.ref || "")}" placeholder="Opcional">
     </div>
-    <div id="boxMesa" class="${check.tipo === "local" ? "" : "hidden"}"><label class="f">Mesa ou referência</label><input class="i" id="cMesa" placeholder="Ex.: mesa 4"></div>
+    <div id="boxMesa" class="${check.tipo === "local" && !MESA ? "" : "hidden"}"><label class="f">Mesa ou referência</label><input class="i" id="cMesa" placeholder="Ex.: mesa 4"></div>
     ${!st.aberta ? `<label class="f">Agendar para</label><select class="i" id="cAg">${horas.map((t) => `<option value="${t.getTime()}">${fmtH(t)}</option>`).join("") || `<option value="">Sem horários disponíveis</option>`}</select>` : ""}
-    <label class="f">Pagamento</label>
-    <div class="choices" id="pags">${pags.map((p) => `<button class="ch ${check.pag === p ? "on" : ""}" data-pag="${p}"><span style="flex:1">${p}${p === "Pix" && L.chavePix ? `<small>A chave vai junto na mensagem</small>` : ""}</span></button>`).join("")}</div>
+    <label class="f ${MESA ? "hidden" : ""}">Pagamento</label>
+    <div class="choices ${MESA ? "hidden" : ""}" id="pags">${pags.map((p) => `<button class="ch ${check.pag === p ? "on" : ""}" data-pag="${p}"><span style="flex:1">${p}${p === "Pix" && L.chavePix ? `<small>A chave vai junto na mensagem</small>` : ""}</span></button>`).join("")}</div>
     <div id="boxTroco" class="${check.pag === "Dinheiro" ? "" : "hidden"}"><label class="f">Troco para quanto?</label><input class="i" id="cTroco" inputmode="decimal" placeholder="Deixe vazio se não precisar"></div>
     <div class="card" id="resumoCk"></div>
     <p class="err hidden" id="ckErr"></p>
   </div>
-  <div class="pfoot"><button class="btn full green" id="enviar">Enviar pedido pelo WhatsApp</button></div>`;
+  <div class="pfoot"><button class="btn full green" id="enviar">${MESA ? "Enviar pedido pra cozinha" : "Enviar pedido pelo WhatsApp"}</button></div>`;
   $("#segTipo").querySelectorAll("[data-tipo]").forEach((b) => b.onclick = () => { check.tipo = b.dataset.tipo; $("#segTipo").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); $("#boxEnd").classList.toggle("hidden", check.tipo !== "entrega"); $("#boxMesa").classList.toggle("hidden", check.tipo !== "local"); resumoCk(); });
   $("#pags").querySelectorAll("[data-pag]").forEach((b) => b.onclick = () => { check.pag = b.dataset.pag; $("#pags").querySelectorAll(".ch").forEach((x) => x.classList.toggle("on", x === b)); $("#boxTroco").classList.toggle("hidden", check.pag !== "Dinheiro"); });
   if ($("#cBairro")) $("#cBairro").onchange = resumoCk;
@@ -546,7 +550,7 @@ function enviar() {
   const err = (m) => { $("#ckErr").textContent = m; $("#ckErr").classList.remove("hidden"); $("#ckErr").scrollIntoView({ behavior: "smooth", block: "center" }); };
   const nome = v("#cNome"), whats = soDig(v("#cWhats"));
   if (!nome) return err("Coloque seu nome.");
-  if (whats.length < 10) return err("Coloque um WhatsApp válido com DDD.");
+  if (whats.length < 10 && !(MESA && !whats)) return err("Coloque um WhatsApp válido com DDD.");
   const s = sub(), d = calcDesconto(s), taxa = taxaAtual();
   let bairro = "", end = "", ref = "";
   if (check.tipo === "entrega") {
@@ -563,7 +567,7 @@ function enviar() {
   let agendado = null;
   if (!st.aberta) { const a = v("#cAg"); if (!a) return err("Não há horário disponível para agendar."); agendado = +a; }
   const ped = Store.addPedido({
-    nome, whats, tipo: check.tipo, bairro, end, ref, mesa: v("#cMesa"), pag: check.pag, troco, agendado,
+    nome, whats, tipo: check.tipo, bairro, end, ref, mesa: MESA || v("#cMesa"), origem: MESA ? "qr" : "", pag: check.pag, troco, agendado,
     itens: cart.map((c) => ({ pid: c.pid, nome: c.nome, qtd: c.qtd, unit: c.unit, opcoes: c.opcoes, obs: c.obs })),
     subtotal: s, desconto: d, cupom: d ? cupomAtivo : "", taxa: taxa || 0, total
   });
@@ -572,6 +576,7 @@ function enviar() {
   cart = []; cupomAtivo = null; salvarCart();
   Store.addMeuPedido(ped.id);
   fechar("shCheck"); fechar("shCart");
+  if (MESA) { render(); abrirAcompanhar(ped.id, null); toast("Pedido enviado pra cozinha ✓"); return; }
   render(); abrirAcompanhar(ped.id, link);
   setTimeout(() => { try { window.open(link, "_blank"); } catch (e) {} }, 300);
 }

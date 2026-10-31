@@ -25,8 +25,8 @@ body{background:#0c0a09}
 .stbtn.off i{background:var(--bad)}
 main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#141110;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
-.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;font-size:.7rem;font-weight:600;color:var(--muted);position:relative}
-.nav svg{width:22px;height:22px}
+.nav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;font-size:.63rem;font-weight:600;color:var(--muted);position:relative}
+.nav svg{width:21px;height:21px}
 .nav button.on{color:var(--brand)}
 .nav em{position:absolute;top:4px;left:calc(50% + 6px);background:var(--brand);color:#fff;font-style:normal;font-size:.65rem;font-weight:800;border-radius:99px;padding:1px 6px}
 .chips{display:flex;gap:7px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none}
@@ -120,6 +120,22 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 .linkbox{display:flex;gap:8px;margin-top:6px}
 .linkbox .i{font-size:14px}
 .hint{color:var(--muted);font-size:.78rem;margin-top:5px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px;margin-top:10px}
+.mesa{aspect-ratio:1;border-radius:14px;background:var(--card);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.mesa b{font-size:1.4rem}.mesa small{font-size:.68rem;color:var(--muted)}.mesa em{font-style:normal;font-size:.62rem;color:#ffd27a}
+.mesa.oc{background:color-mix(in srgb,var(--brand) 22%,var(--card));border-color:var(--brand)}.mesa.oc small{color:var(--ink);font-weight:700}
+.mesa.nv{animation:pisca 1.2s infinite}@keyframes pisca{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 45%,transparent)}}
+#kds{position:fixed;inset:0;z-index:90;background:#0d0b0a;overflow-y:auto;padding:0 12px 24px}
+#kds .kh{position:sticky;top:0;z-index:2;background:#0d0b0a;display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+#kds .kh b{font-size:1.2rem}#kds .kh span{flex:1;color:var(--muted);font-size:.85rem}#kds .kh button{background:var(--card2);border-radius:10px;padding:9px 14px;font-weight:700}
+#kds .kg{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-top:12px}
+#kds .kc{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column}
+#kds .kc.novo{border-color:#4aa3ff}#kds .kc.preparo{border-color:var(--warn)}#kds .kc.late{border-color:var(--bad);box-shadow:0 0 0 2px color-mix(in srgb,var(--bad) 35%,transparent)}
+#kds .kt{display:flex;align-items:center;gap:8px}#kds .kt b{font-size:1.5rem}#kds .kt span{flex:1;font-weight:700;font-size:.92rem}#kds .kt em{font-style:normal;font-weight:800;font-size:.9rem}
+#kds .kc.late .kt em{color:var(--bad)}#kds .kag{margin-top:6px;color:#ffd27a;font-weight:700;font-size:.85rem}
+#kds .ki{margin:10px 0 12px;flex:1}#kds .ki div{font-size:1.12rem;padding:5px 0;border-bottom:1px dashed var(--line)}#kds .ki small{display:block;color:var(--muted);font-size:.85rem}#kds .ki small.ob{color:#ffcc66;font-weight:700}
+#kds .kb{width:100%;padding:15px;border-radius:12px;font-weight:800;font-size:1.05rem;background:#4aa3ff;color:#fff}#kds .kb.ok{background:#22a35a}
+#kds .kv{grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0;font-size:1.1rem}
 .cxbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
 .cxbtns .mini{justify-content:center;text-align:center;padding:11px 6px}
 .manitem{display:grid;grid-template-columns:1fr 64px 34px;gap:6px;margin-top:6px}
@@ -129,6 +145,7 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 <div id="root"></div>
 <div class="sheet" id="shEd"><div class="panel tall" id="pnEd"></div></div>
 <div class="sheet" id="shMan"><div class="panel tall" id="pnMan"></div></div>
+<div class="sheet" id="shMesa"><div class="panel tall" id="pnMesa"></div></div>
 <div class="sheet" id="shCx"><div class="panel" id="pnCx"></div></div>
 <div class="sheet" id="shSt"><div class="panel" id="pnSt"></div></div>
 <div class="sheet" id="shAsk" style="align-items:center;padding:20px"><div class="panel" style="border-radius:20px;max-width:380px" id="pnAsk"></div></div>
@@ -337,6 +354,7 @@ function app() {
   <main class="wrap" id="main"></main>
   <nav class="nav">
     ${[["pedidos", "Pedidos", '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],
+       ["mesas", "Mesas", '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M6 12v8M18 12v8M9 4h6"/>'],
        ["cardapio", "Cardápio", '<path d="M4 5h16M4 12h16M4 19h10"/>'],
        ["loja", "Loja", '<path d="M3 9l2-5h14l2 5M4 9v11h16V9M3 9h18M9 20v-6h6v6"/>'],
        ["caixa", "Caixa", '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 12h18M8 7V4h8v3M12 15v2"/>'],
@@ -354,7 +372,7 @@ function app() {
   seen = new Set(Store.pedidos().map((p) => p.id)); iniciado = true;
   if (!window._ouvindo) {
     window._ouvindo = true;
-    Store.onChange(() => { D = Store.get(); if (!D || !$("#main")) return; checarNovos(); renderTopo(); if (tab === "pedidos" || tab === "resumo" || (tab === "caixa" && !(document.activeElement && document.activeElement.closest("#main input")))) renderTab(); });
+    Store.onChange(() => { D = Store.get(); if (!D || !$("#main")) return; checarNovos(); renderTopo(); if (window._kdsOn) drawKds(); if (window._mesaVer && $("#shMesa").classList.contains("open")) verMesa(window._mesaVer); if (tab === "pedidos" || tab === "mesas" || tab === "resumo" || (tab === "caixa" && !(document.activeElement && document.activeElement.closest("#main input")))) renderTab(); });
     setInterval(() => { if (!$("#main")) return; checarNovos(); if (tab === "pedidos" && !document.querySelector(".sheet.open")) renderPedidos(); renderTopo(); }, 5000);
   }
 }
@@ -390,7 +408,7 @@ function checarNovos() {
   novos.forEach((p) => seen.add(p.id));
   if (novos.length) { beep(); toast(`🔔 Novo pedido #${novos[0].num} · ${novos[0].nome}`); document.title = "🔔 Novo pedido!"; setTimeout(() => document.title = "Painel da loja", 9000); }
 }
-function renderTab() { if (!$("#main")) return; ({ pedidos: renderPedidos, cardapio: renderCardapio, loja: renderLoja, cupons: renderCupons, resumo: renderResumo, caixa: renderCaixa })[tab](); }
+function renderTab() { if (!$("#main")) return; ({ pedidos: renderPedidos, cardapio: renderCardapio, loja: renderLoja, cupons: renderCupons, resumo: renderResumo, caixa: renderCaixa, mesas: renderMesas })[tab](); }
 
 // ================= PEDIDOS =================
 const STT = { novo: "Novo", preparo: "Em preparo", saiu: "Saiu p/ entrega", pronto: "Pronto p/ retirar", entregue: "Finalizado", cancelado: "Cancelado" };
@@ -409,10 +427,11 @@ function renderPedidos() {
     <div class="chips"><button class="chip ${filtro === "ativos" ? "on" : ""}" data-f="ativos">Em andamento<em>${ativos.length}</em></button>
       <button class="chip ${filtro === "fin" ? "on" : ""}" data-f="fin">Finalizados</button><button class="chip ${filtro === "todos" ? "on" : ""}" data-f="todos">Todos</button></div>
     ${PRO() && !caixaAberto() ? `<button class="card" id="irCaixa" style="width:100%;text-align:left;display:flex;gap:10px;align-items:center;margin-top:10px;border-color:color-mix(in srgb,var(--warn) 40%,var(--line))"><span style="font-size:1.3rem">💰</span><span style="flex:1"><b>Caixa fechado</b><br><small class="muted">Toque pra abrir o caixa do dia</small></span><span class="muted">›</span></button>` : ""}
-    <button class="btn full ghost" id="novoMan" style="margin-top:10px">+ Lançar pedido manual (balcão / telefone)</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn ghost" id="novoMan" style="padding:12px 8px;font-size:.88rem">+ Pedido balcão</button><button class="btn ghost" id="abrirKds" style="padding:12px 8px;font-size:.88rem">👨‍🍳 Tela da cozinha</button></div>
     ${list.length ? list.map(cardPedido).join("") : `<div class="empty">${filtro === "ativos" ? "Nenhum pedido em andamento.<br>Quando chegar um, toca um alarme aqui 🔔<br><br><small>Deixe esta tela aberta no celular ou computador da loja.</small>" : "Nada por aqui ainda."}</div>`}`;
   document.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { filtro = b.dataset.f; renderPedidos(); });
   $("#novoMan").onclick = pedidoManual;
+  $("#abrirKds").onclick = abrirCozinha;
   if ($("#irCaixa")) $("#irCaixa").onclick = () => irPara("caixa");
   document.querySelectorAll("[data-st]").forEach((b) => b.onclick = () => mudarStatus(b.dataset.st, b.dataset.to));
   document.querySelectorAll("[data-cancel]").forEach((b) => b.onclick = async () => { if (await confirmar("Cancelar este pedido?", "Cancelar pedido")) mudarStatus(b.dataset.cancel, "cancelado"); });
@@ -436,7 +455,7 @@ function cardPedido(p) {
   const mapa = p.tipo === "entrega" ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.end}, ${p.bairro}${D.loja.cidade ? ", " + D.loja.cidade : ""}`)}` : "";
   return `<div class="ord ${p.status === "novo" ? "novo" : ""}">
     <div class="oh"><b>#${p.num}</b><small>${ago(p.criado)}${p.origem === "manual" ? " · balcão" : ""}</small><span class="badge s-${p.status}">${STT[p.status]}</span></div>
-    <div class="oh" style="margin-top:6px"><span class="badge tp">${TIPO[p.tipo] || ""}</span>${p.agendado ? `<span class="badge ag">🕒 ${new Date(p.agendado).toLocaleString("pt-BR", { weekday: "short", hour: "2-digit", minute: "2-digit" })}</span>` : ""}</div>
+    <div class="oh" style="margin-top:6px"><span class="badge tp">${TIPO[p.tipo] || ""}</span>${p.cozinhaOk && p.status === "preparo" ? `<span class="badge" style="background:#1f3a2a;color:#6fe3a0">✓ Cozinha pronto</span>` : ""}${p.mesa && p.tipo === "local" ? `<span class="badge" style="background:#2a2236;color:#c9b6ff">${esc(p.mesa)}${p.origem === "qr" ? " · QR" : ""}</span>` : ""}${p.agendado ? `<span class="badge ag">🕒 ${new Date(p.agendado).toLocaleString("pt-BR", { weekday: "short", hour: "2-digit", minute: "2-digit" })}</span>` : ""}</div>
     <div class="ocli"><b>${esc(p.nome)}</b>${p.whats ? ` · <a href="tel:${esc(p.whats)}">${fone(p.whats)}</a>` : ""}
       ${p.tipo === "entrega" ? `<br>${esc(p.end)} — ${esc(p.bairro)}${p.ref ? ` <span class="muted">(${esc(p.ref)})</span>` : ""}` : ""}${p.mesa ? `<br>${esc(p.mesa)}` : ""}</div>
     <div class="oit">${p.itens.map((i) => `<div class="line" style="padding:2px 0"><span><b>${i.qtd}x</b> ${esc(i.nome)}</span><span>${brl(i.unit * i.qtd)}</span></div>${i.opcoes && i.opcoes.length ? `<div class="o">${esc(i.opcoes.join(", "))}</div>` : ""}${i.obs ? `<div class="o" style="color:#ffcc66">Obs: ${esc(i.obs)}</div>` : ""}`).join("")}
@@ -750,6 +769,159 @@ function renderCupons() {
   };
 }
 
+
+
+// ================= MESAS E COMANDAS =================
+const nMesas = () => Math.max(0, Math.min(200, parseInt(D.loja.mesas) || 0));
+const abertosMesa = (nome) => Store.pedidos().filter((p) => p.tipo === "local" && p.mesa === nome && !p.contaFechada && p.status !== "cancelado").sort((a, b) => a.criado - b.criado);
+const linkMesa = (n) => location.href.replace(/admin\.html.*$/, "") + (Store.nuvem ? "?l=" + Store.id + "&mesa=" + n : "?mesa=" + n);
+function renderMesas() {
+  D = Store.get();
+  if (!PRO()) { $("#main").innerHTML = `<div class="secT"><h2>Mesas e comandas</h2></div>${bloqueio("Mesas, comandas e QR Code na mesa")}`; return; }
+  const n = nMesas();
+  if (!n) {
+    $("#main").innerHTML = `<div class="secT"><h2>Mesas e comandas</h2></div>
+      <div class="card" style="text-align:center;padding:22px"><div style="font-size:2rem">🍽️</div><b>Atende no salão?</b>
+        <p class="muted" style="font-size:.88rem;margin-top:4px">O garçom lança os pedidos de cada mesa e fecha a conta no final. E cada mesa ganha um QR Code: o cliente lê com o celular e pede sozinho.</p>
+        <label class="f" style="text-align:left">Quantas mesas você tem?</label><input class="i" id="mQtd" inputmode="numeric" placeholder="Ex.: 12">
+        <button class="btn full" id="mSalvar" style="margin-top:12px">Ativar mesas</button></div>`;
+    $("#mSalvar").onclick = () => { const q = parseInt($("#mQtd").value); if (!(q > 0 && q <= 200)) return toast("Coloque um número de 1 a 200"); const d = Store.get(); d.loja.mesas = q; Store.save(d); D = d; toast("Mesas ativadas ✓"); renderMesas(); };
+    return;
+  }
+  const mesas = Array.from({ length: n }, (_, i) => { const nome = "Mesa " + (i + 1), ps = abertosMesa(nome); return { i: i + 1, nome, ps, tot: ps.reduce((s, p) => s + p.total, 0), novo: ps.some((p) => p.status === "novo") }; });
+  const ocup = mesas.filter((m) => m.ps.length);
+  $("#main").innerHTML = `<div class="secT"><h2>Mesas</h2><span class="muted" style="font-size:.82rem">${ocup.length} ocupada(s) · ${brl(ocup.reduce((s, m) => s + m.tot, 0))} em aberto</span></div>
+    <div class="mgrid">${mesas.map((m) => `<button class="mesa ${m.ps.length ? "oc" : ""} ${m.novo ? "nv" : ""}" data-mesa="${m.i}"><b>${m.i}</b><small>${m.ps.length ? brl(m.tot) : "livre"}</small>${m.ps.length ? `<em>${Math.max(1, Math.round((Date.now() - m.ps[0].criado) / 60000))} min</em>` : ""}</button>`).join("")}</div>
+    <p class="hint">Laranja = mesa com conta aberta. Piscando = tem pedido novo que a cozinha ainda não aceitou.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px"><button class="btn ghost" id="mQr" style="padding:12px 8px;font-size:.88rem">🖨️ QR Codes das mesas</button><button class="btn ghost" id="mCfg" style="padding:12px 8px;font-size:.88rem">⚙️ Nº de mesas</button></div>`;
+  document.querySelectorAll("[data-mesa]").forEach((b) => b.onclick = () => verMesa(+b.dataset.mesa, true));
+  $("#mQr").onclick = imprimirQRs;
+  $("#mCfg").onclick = async () => { const v = await pedirTexto("Quantas mesas?", String(n), "Salvar"); const q = parseInt(v); if (!(q > 0 && q <= 200)) return; const d = Store.get(); d.loja.mesas = q; Store.save(d); D = d; renderMesas(); };
+}
+function verMesa(n, abrirAgora) {
+  const nome = "Mesa " + n, ps = abertosMesa(nome), tot = ps.reduce((s, p) => s + p.total, 0);
+  window._mesaVer = n;
+  $("#pnMesa").innerHTML = `<div class="phead"><button class="x" data-x="shMesa">←</button><h3>${nome}</h3>${ps.length ? `<span class="muted" style="font-size:.82rem">aberta há ${Math.max(1, Math.round((Date.now() - ps[0].criado) / 60000))} min</span>` : ""}</div><div class="pbody">
+    ${ps.length ? ps.map((p) => `<div class="card"><div class="line" style="padding:0 0 6px"><b>#${p.num} · ${hora(p.criado)}${p.origem === "qr" ? " · pelo QR" : ""}</b><span class="badge s-${p.status}">${STT[p.status]}</span></div>
+        ${p.itens.map((i) => `<div class="line" style="padding:2px 0"><span>${i.qtd}x ${esc(i.nome)}${i.opcoes && i.opcoes.length ? `<small class="muted" style="display:block">${esc(i.opcoes.join(", "))}</small>` : ""}${i.obs ? `<small style="display:block;color:#ffcc66">Obs: ${esc(i.obs)}</small>` : ""}</span><span>${brl(i.unit * i.qtd)}</span></div>`).join("")}
+        ${p.status === "novo" || p.status === "preparo" ? `<button class="mini red" data-mcan="${p.id}" style="margin-top:6px">Cancelar este pedido</button>` : ""}</div>`).join("")
+      : `<div class="empty">Mesa livre.<br><small>Lance o primeiro pedido ou espere o cliente pedir pelo QR Code.</small></div>`}
+    ${ps.length ? `<div class="card"><div class="line tot" style="border:0;margin:0;padding:0"><span>Total da mesa</span><span>${brl(tot)}</span></div></div>` : ""}
+    <button class="btn full" id="mLancar" style="margin-top:12px">+ Lançar itens (vai pra cozinha)</button>
+    ${ps.length ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button class="btn ghost" id="mConta">🖨️ Imprimir conta</button><button class="btn" id="mFechar" style="background:var(--bad)">Fechar conta</button></div>` : ""}
+  </div>`;
+  $("#mLancar").onclick = () => lancarMesa(n);
+  if ($("#mConta")) $("#mConta").onclick = () => imprimirConta(nome, ps, null);
+  if ($("#mFechar")) $("#mFechar").onclick = () => fecharMesa(n);
+  document.querySelectorAll("[data-mcan]").forEach((b) => b.onclick = async () => { if (await confirmar("Cancelar este pedido da mesa?", "Cancelar pedido")) mudarStatus(b.dataset.mcan, "cancelado"); });
+  if (abrirAgora) { abrir("shMesa"); $("#pnMesa").scrollTop = 0; }
+}
+function lancarMesa(n) {
+  const nome = "Mesa " + n; let itens = [{ pid: "", qtd: 1, obs: "" }]; window._mesaVer = null;
+  const draw = () => {
+    $("#pnMesa").innerHTML = `<div class="phead"><button class="x" id="mVolta">←</button><h3>Lançar na ${nome}</h3></div><div class="pbody">
+      ${itens.map((it, i) => `<div class="card" style="padding:10px"><div class="manitem" style="margin-top:0"><select class="i" data-li="${i}"><option value="">Escolha o item</option>${D.categorias.map((c) => `<optgroup label="${esc(c.nome)}">${D.produtos.filter((p) => p.cat === c.id && p.ativo).map((p) => `<option value="${p.id}" ${it.pid === p.id ? "selected" : ""}>${esc(p.nome)} · ${brl(p.preco)}</option>`).join("")}</optgroup>`).join("")}</select>
+        <input class="i" type="number" min="1" value="${it.qtd}" data-lq="${i}"><button class="ib" data-lr="${i}">${ICO.del}</button></div>
+        <input class="i" data-lo="${i}" value="${esc(it.obs)}" placeholder="Observação (ex.: sem cebola, ao ponto)" style="margin-top:6px"></div>`).join("")}
+      <button class="mini" id="lAdd" style="margin-top:8px">+ outro item</button>
+      <div class="card" id="lTot"></div><p class="err hidden" id="lErr"></p>
+      <button class="btn full" id="lGo" style="margin-top:12px">Enviar pra cozinha</button></div>`;
+    const tot = () => { const s = itens.reduce((a, it) => { const p = D.produtos.find((x) => x.id === it.pid); return a + (p ? p.preco * it.qtd : 0); }, 0); $("#lTot").innerHTML = `<div class="line tot" style="border:0;margin:0;padding:0"><span>Total</span><span>${brl(s)}</span></div>`; return s; };
+    $("#pnMesa").querySelectorAll("[data-li]").forEach((x) => x.onchange = () => { itens[+x.dataset.li].pid = x.value; tot(); });
+    $("#pnMesa").querySelectorAll("[data-lq]").forEach((x) => x.oninput = () => { itens[+x.dataset.lq].qtd = Math.max(1, +x.value || 1); tot(); });
+    $("#pnMesa").querySelectorAll("[data-lo]").forEach((x) => x.oninput = () => { itens[+x.dataset.lo].obs = x.value; });
+    $("#pnMesa").querySelectorAll("[data-lr]").forEach((b) => b.onclick = () => { itens.splice(+b.dataset.lr, 1); if (!itens.length) itens.push({ pid: "", qtd: 1, obs: "" }); draw(); });
+    $("#lAdd").onclick = () => { itens.push({ pid: "", qtd: 1, obs: "" }); draw(); };
+    $("#mVolta").onclick = () => verMesa(n);
+    tot();
+    $("#lGo").onclick = () => {
+      const ok = itens.filter((it) => it.pid); if (!ok.length) { $("#lErr").textContent = "Escolha pelo menos um item."; $("#lErr").classList.remove("hidden"); return; }
+      const lista = ok.map((it) => { const p = D.produtos.find((x) => x.id === it.pid); return { pid: p.id, nome: p.nome, qtd: it.qtd, unit: p.preco, opcoes: [], obs: it.obs.trim() }; });
+      const s = lista.reduce((a, i) => a + i.unit * i.qtd, 0);
+      Store.addPedido({ origem: "garcom", nome, whats: "", tipo: "local", mesa: nome, pag: "Na conta da mesa", troco: "", end: "", bairro: "", ref: "", itens: lista, subtotal: s, desconto: 0, taxa: 0, total: s });
+      toast(`Enviado pra cozinha · ${nome}`); verMesa(n);
+    };
+  };
+  draw();
+}
+function fecharMesa(n) {
+  const nome = "Mesa " + n, ps = abertosMesa(nome); if (!ps.length) return;
+  const base = ps.reduce((s, p) => s + p.total, 0); let pag = "Pix", serv = false, div = 1; window._mesaVer = null;
+  const draw = () => {
+    const sv = serv ? Math.round(base * 10) / 100 : 0, total = base + sv;
+    $("#pnMesa").innerHTML = `<div class="phead"><button class="x" id="fVolta">←</button><h3>Fechar ${nome}</h3></div><div class="pbody">
+      <div class="card"><div class="line"><span>Consumo</span><span>${brl(base)}</span></div>
+        <div class="setrow" style="border:0;padding:6px 0"><div class="tx"><b>Taxa de serviço (10%)</b><small>${brl(Math.round(base * 10) / 100)}</small></div><button class="tg ${serv ? "on" : ""}" id="fServ"></button></div>
+        <div class="line tot"><span>Total</span><span>${brl(total)}</span></div></div>
+      <label class="f">Dividir a conta em quantas pessoas?</label><div class="seg" id="fDiv">${[1, 2, 3, 4, 5, 6].map((k) => `<button data-dv="${k}" class="${div === k ? "on" : ""}">${k}</button>`).join("")}</div>
+      ${div > 1 ? `<p class="hint" style="font-size:.9rem">Fica <b>${brl(total / div)}</b> pra cada um.</p>` : ""}
+      <label class="f">Forma de pagamento</label><div class="seg" id="fPag">${["Pix", "Dinheiro", "Cartão"].map((k) => `<button data-fp="${k}" class="${pag === k ? "on" : ""}">${k}</button>`).join("")}</div>
+      <button class="btn full" id="fGo" style="margin-top:18px;background:var(--bad)">Fechar conta e liberar mesa</button></div>`;
+    $("#fServ").onclick = () => { serv = !serv; draw(); };
+    $("#pnMesa").querySelectorAll("[data-dv]").forEach((b) => b.onclick = () => { div = +b.dataset.dv; draw(); });
+    $("#pnMesa").querySelectorAll("[data-fp]").forEach((b) => b.onclick = () => { pag = b.dataset.fp; draw(); });
+    $("#fVolta").onclick = () => verMesa(n);
+    $("#fGo").onclick = () => {
+      const agora = Date.now();
+      ps.forEach((p) => { if (!p.baixa) mexerEstoque(p, -1); Store.updPedido(p.id, { pag, contaFechada: agora, status: "entregue", t_entregue: agora, baixa: true }); });
+      if (sv > 0) { const t = Store.addPedido({ origem: "garcom", nome, whats: "", tipo: "local", mesa: nome, pag, troco: "", end: "", bairro: "", ref: "", itens: [{ nome: "Taxa de serviço (10%)", qtd: 1, unit: sv, opcoes: [], obs: "" }], subtotal: sv, desconto: 0, taxa: 0, total: sv }); Store.updPedido(t.id, { contaFechada: agora, status: "entregue", t_entregue: agora, baixa: true }); }
+      imprimirConta(nome, ps, { pag, sv, total, div });
+      fechar("shMesa"); toast(`${nome} fechada · ${brl(total)} no ${pag}`); renderTab();
+    };
+  };
+  draw();
+}
+function imprimirConta(nome, ps, fim) {
+  const w = window.open("", "_blank", "width=380,height=640"); if (!w) return toast("Libere pop-ups para imprimir");
+  const itens = {}; ps.forEach((p) => p.itens.forEach((i) => { const k = i.nome + "|" + i.unit; itens[k] = itens[k] || { nome: i.nome, unit: i.unit, qtd: 0 }; itens[k].qtd += i.qtd; }));
+  const base = ps.reduce((s, p) => s + p.total, 0), sv = fim ? fim.sv : 0, total = fim ? fim.total : base;
+  const L = (a, b, bold) => `<div class="r">${bold ? `<b>${a}</b><b>${b}</b>` : `<span>${a}</span><span>${b}</span>`}</div>`;
+  w.document.write(`<html><head><title>Conta ${esc(nome)}</title><style>body{font-family:monospace;width:72mm;margin:0 auto;font-size:13px}h2{text-align:center;margin:4px 0}hr{border:0;border-top:1px dashed #000}.r{display:flex;justify-content:space-between;gap:8px}</style></head><body>
+    <h2>${esc(D.loja.nome)}</h2><div style="text-align:center">${fim ? "CONTA FECHADA" : "CONFERÊNCIA DE CONTA"}<br><b>${esc(nome.toUpperCase())}</b><br>${new Date().toLocaleString("pt-BR")}</div><hr>
+    ${Object.values(itens).map((i) => L(`${i.qtd}x ${esc(i.nome)}`, brl(i.unit * i.qtd))).join("")}<hr>
+    ${L("Consumo", brl(base))}${fim && sv ? L("Serviço 10%", brl(sv)) : !fim ? L("Serviço 10% (opcional)", brl(Math.round(base * 10) / 100)) : ""}${L("TOTAL", brl(total), 1)}
+    ${fim && fim.div > 1 ? L(`Dividido em ${fim.div}`, brl(total / fim.div) + " cada") : ""}${fim ? L("Pagamento", esc(fim.pag)) : ""}<hr><div style="text-align:center">Obrigado pela preferência!</div>
+    <script>window.onload=()=>{window.print()}<\/script></body></html>`);
+  w.document.close();
+}
+function imprimirQRs() {
+  const n = nMesas(); if (!n || !window.QRCode) return toast("Não consegui gerar os QR Codes");
+  const tmp = document.createElement("div"); tmp.style.cssText = "position:fixed;left:-9999px;top:0"; document.body.appendChild(tmp);
+  const imgs = [];
+  for (let i = 1; i <= n; i++) { tmp.innerHTML = ""; new QRCode(tmp, { text: linkMesa(i), width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M }); const c = tmp.querySelector("canvas"); imgs.push(c ? c.toDataURL() : ""); }
+  tmp.remove();
+  const w = window.open("", "_blank"); if (!w) return toast("Libere pop-ups para imprimir");
+  w.document.write(`<html><head><title>QR Codes das mesas</title><style>body{font-family:Arial,sans-serif;margin:0;padding:10mm}.g{display:grid;grid-template-columns:1fr 1fr;gap:8mm}.c{border:2px dashed #999;border-radius:10px;padding:6mm;text-align:center;break-inside:avoid}.c h3{margin:0;font-size:15px}.c h1{margin:2mm 0;font-size:30px}.c img{width:48mm;height:48mm}.c p{margin:2mm 0 0;font-size:12px}@media print{body{padding:6mm}}</style></head><body><div class="g">
+    ${imgs.map((src, i) => `<div class="c"><h3>${esc(D.loja.nome)}</h3><h1>Mesa ${i + 1}</h1><img src="${src}" alt=""><p><b>Aponte a câmera do celular</b><br>e faça seu pedido daqui da mesa 📱</p></div>`).join("")}
+    </div><script>window.onload=()=>setTimeout(()=>window.print(),300)<\/script></body></html>`);
+  w.document.close();
+}
+
+// ================= TELA DA COZINHA =================
+function abrirCozinha() {
+  if ($("#kds")) return;
+  const el = document.createElement("div"); el.id = "kds"; document.body.appendChild(el); window._kdsOn = true; document.body.style.overflow = "hidden";
+  try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then((l) => { window._kdsLock = l; }).catch(() => {}); } catch (e) {}
+  window._kdsT = setInterval(drawKds, 20000); drawKds();
+}
+function fecharCozinha() { const el = $("#kds"); if (el) el.remove(); window._kdsOn = false; clearInterval(window._kdsT); document.body.style.overflow = ""; try { if (window._kdsLock) window._kdsLock.release(); } catch (e) {} if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); }
+function drawKds() {
+  const el = $("#kds"); if (!el) return;
+  const lim = Date.now() + 40 * 60000;
+  const ps = Store.pedidos().filter((p) => (p.status === "novo" || (p.status === "preparo" && !p.cozinhaOk)) && (!p.agendado || p.agendado <= lim)).sort((a, b) => (a.agendado || a.criado) - (b.agendado || b.criado));
+  const onde = (p) => p.tipo === "entrega" ? "🛵 Entrega" : p.tipo === "retirada" ? "🏪 Retirada" : "🍽️ " + (p.mesa || "No local");
+  el.innerHTML = `<div class="kh"><b>👨‍🍳 Cozinha</b><span>${ps.length} pedido(s) · ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span><button id="kFull">⛶</button><button id="kSair">Sair</button></div>
+    <div class="kg">${ps.length ? ps.map((p) => { const min = Math.max(0, Math.round((Date.now() - (p.t_preparo || p.criado)) / 60000));
+      return `<div class="kc ${p.status} ${min >= 25 ? "late" : ""}"><div class="kt"><b>#${p.num}</b><span>${onde(p)}</span><em>${min} min</em></div>
+        ${p.agendado ? `<div class="kag">🕒 Para ${hora(p.agendado)}</div>` : ""}
+        <div class="ki">${p.itens.map((i) => `<div><b>${i.qtd}x</b> ${esc(i.nome)}${i.opcoes && i.opcoes.length ? `<small>${esc(i.opcoes.join(" · "))}</small>` : ""}${i.obs ? `<small class="ob">⚠️ ${esc(i.obs)}</small>` : ""}</div>`).join("")}</div>
+        ${p.status === "novo" ? `<button data-kgo="${p.id}" class="kb">Começar a preparar</button>` : `<button data-kok="${p.id}" class="kb ok">Pronto ✓</button>`}</div>`; }).join("") : `<div class="kv">Nenhum pedido na fila 🙌<br><small>Os pedidos novos aparecem aqui sozinhos.</small></div>`}</div>`;
+  $("#kSair").onclick = fecharCozinha;
+  $("#kFull").onclick = () => { try { document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen(); } catch (e) {} };
+  el.querySelectorAll("[data-kgo]").forEach((b) => b.onclick = () => { mudarStatus(b.dataset.kgo, "preparo"); drawKds(); });
+  el.querySelectorAll("[data-kok]").forEach((b) => b.onclick = () => { const p = Store.pedido(b.dataset.kok); if (!p) return;
+    if (p.tipo === "entrega") { Store.updPedido(p.id, { cozinhaOk: true, t_cozinha: Date.now() }); toast(`#${p.num} pronto · aguardando entregador`); } else mudarStatus(p.id, "pronto"); drawKds(); });
+}
 
 // ================= ESTOQUE =================
 function mexerEstoque(ped, sinal) {
