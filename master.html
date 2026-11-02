@@ -6,11 +6,11 @@
 <title>Painel Mestre</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0f0d0c">
-<link rel="icon" href="icon.svg?v=8" type="image/svg+xml">
+<link rel="icon" href="icon.svg?v=9" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=8">
+<link rel="stylesheet" href="app.css?v=9">
 <style>
 body{background:#0c0a09}
 .gate{min-height:100vh;display:grid;place-items:center;padding:24px}
@@ -50,8 +50,8 @@ body{background:#0c0a09}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>window.APP_PAGE = "master";</script>
-<script src="config.js?v=8"></script>
-<script src="store.js?v=8"></script>
+<script src="config.js?v=9"></script>
+<script src="store.js?v=9"></script>
 <script>
 const $ = (s) => document.querySelector(s);
 let lojas = [], filtro = "todas";
@@ -75,7 +75,7 @@ function tela() {
   painel();
 }
 function login() {
-  $("#root").innerHTML = `<div class="gate"><div class="gbox"><img src="icon.svg?v=8" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h1 style="text-align:center;margin-top:14px">Painel Mestre</h1><p class="muted" style="text-align:center">Cardápio Direto · administração das lojas</p>
+  $("#root").innerHTML = `<div class="gate"><div class="gbox"><img src="icon.svg?v=9" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h1 style="text-align:center;margin-top:14px">Painel Mestre</h1><p class="muted" style="text-align:center">Cardápio Direto · administração das lojas</p>
     <label class="f">E-mail</label><input class="i" id="em" type="email" autocomplete="username">
     <label class="f">Senha</label><input class="i" id="se" type="password" autocomplete="current-password">
     <p class="err hidden" id="er"></p>
@@ -96,7 +96,7 @@ function login() {
   };
 }
 function verificar() {
-  $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center"><img src="icon.svg?v=8" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h1 style="margin-top:14px">Falta confirmar seu e-mail</h1>
+  $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center"><img src="icon.svg?v=9" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h1 style="margin-top:14px">Falta confirmar seu e-mail</h1>
     <p class="muted" style="margin-top:8px">Sua conta foi criada ✅ Por segurança, o painel só abre depois de confirmar o e-mail <b>${esc(Store.usuario().email)}</b>.</p>
     <div class="card" style="text-align:left;font-size:.92rem;line-height:1.7">1. Abra o seu Gmail<br>2. Procure o e-mail <b>"Verifique seu e-mail"</b> (olhe também em Spam ou Promoções)<br>3. Clique no link dentro dele<br>4. Volte aqui e toque em <b>Já confirmei</b></div>
     <button class="btn full" id="ja" style="margin-top:16px">Já confirmei</button>
@@ -113,7 +113,7 @@ async function carregar() {
   desenhar();
 }
 function painel() {
-  $("#root").innerHTML = `<header class="top"><div class="wrap"><img src="icon.svg?v=8" alt="" width="36" height="36" style="border-radius:10px"><div style="flex:1;min-width:0"><h1>Painel Mestre</h1><small>${esc(Store.usuario().email)}</small></div><button class="mini" id="rf">Atualizar</button><button class="mini" id="sa">Sair</button></div></header>
+  $("#root").innerHTML = `<header class="top"><div class="wrap"><img src="icon.svg?v=9" alt="" width="36" height="36" style="border-radius:10px"><div style="flex:1;min-width:0"><h1>Painel Mestre</h1><small>${esc(Store.usuario().email)}</small></div><button class="mini" id="rf">Atualizar</button><button class="mini" id="sa">Sair</button></div></header>
     <main class="wrap" style="padding-bottom:40px"><div id="ks"></div><div class="chips" id="fs"></div><div id="ls"><p class="empty">Carregando lojas…</p></div></main>`;
   $("#rf").onclick = carregar; $("#sa").onclick = () => Store.sair();
   carregar();

@@ -140,6 +140,7 @@
         whats: whats || "", endereco: "", cidade: "", instagram: "",
         modo: "auto",
         horarios: [dia(0, "18:00", "23:30"), dia(1, "18:00", "23:00", false), dia(2, "18:00", "23:00"), dia(3, "18:00", "23:00"), dia(4, "18:00", "23:00"), dia(5, "18:00", "23:59"), dia(6, "18:00", "23:59")],
+        tema: "escuro", fonte: "moderna", layout: "lista", destaques: true, passos: {},
         entrega: true, retirada: true, consumoLocal: false,
         tempoEntrega: "40–60 min", tempoRetirada: "20–30 min", pedidoMinimo: 0,
         tipoTaxa: "bairro", taxaFixa: 5,

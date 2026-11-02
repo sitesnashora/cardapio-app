@@ -7,13 +7,13 @@
 <meta name="theme-color" content="#0f0d0c">
 <meta name="robots" content="noindex">
 <link rel="manifest" href="manifest-admin.json">
-<link rel="icon" href="icon.svg?v=8" type="image/svg+xml">
+<link rel="icon" href="icon.svg?v=9" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=8">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@700&family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=9">
 <style>
 body{background:#0c0a09}
 .top{position:sticky;top:0;z-index:20;background:rgba(12,10,9,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
@@ -120,6 +120,22 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 .linkbox{display:flex;gap:8px;margin-top:6px}
 .linkbox .i{font-size:14px}
 .hint{color:var(--muted);font-size:.78rem;margin-top:5px}
+.ajb{width:34px;height:34px;border-radius:50%;background:var(--card2);font-weight:800;font-size:1rem;color:var(--muted);flex:none;margin-left:auto;margin-right:8px}
+.passos{border-color:color-mix(in srgb,var(--brand) 40%,var(--line))}
+.pss{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 0;border-bottom:1px solid var(--line)}
+.pss .pc{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-size:.75rem;font-weight:800}
+.pss.ok .pc{background:var(--ok);border-color:var(--ok);color:#fff}.pss.ok .pt b{text-decoration:line-through;opacity:.6}
+.pss .pt{flex:1;min-width:0}.pss .pt b{display:block;font-size:.92rem}.pss .pt small{display:block;color:var(--muted);font-size:.78rem}
+.pss .pg{color:var(--brand);font-weight:700;font-size:.82rem;flex:none}
+.aj{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-top:10px;overflow:hidden}
+.aj summary{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;list-style:none;font-size:1rem}.aj summary::-webkit-details-marker{display:none}
+.aj summary::after{content:"›";margin-left:auto;color:var(--muted);transition:transform .2s}.aj[open] summary::after{transform:rotate(90deg)}
+.aj p{padding:0 14px;color:var(--muted);font-size:.88rem}.aj ol{padding:8px 14px 14px 34px;font-size:.9rem;display:grid;gap:7px}
+.temas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tema{border:2px solid var(--line);border-radius:14px;padding:8px;font-weight:700;font-size:.85rem;display:flex;flex-direction:column;gap:6px;align-items:center}
+.tema.on{border-color:var(--brand)}
+.tv{width:100%;aspect-ratio:4/3;border-radius:9px;padding:6px;display:flex;flex-direction:column;gap:4px}
+.tv i{height:22%;border-radius:4px}.tv em{flex:1;border-radius:4px;border:1px solid}
 .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px;margin-top:10px}
 .mesa{aspect-ratio:1;border-radius:14px;background:var(--card);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .mesa b{font-size:1.4rem}.mesa small{font-size:.68rem;color:var(--muted)}.mesa em{font-style:normal;font-size:.62rem;color:#ffd27a}
@@ -145,6 +161,7 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 <div id="root"></div>
 <div class="sheet" id="shEd"><div class="panel tall" id="pnEd"></div></div>
 <div class="sheet" id="shMan"><div class="panel tall" id="pnMan"></div></div>
+<div class="sheet" id="shAj"><div class="panel tall" id="pnAj"></div></div>
 <div class="sheet" id="shMesa"><div class="panel tall" id="pnMesa"></div></div>
 <div class="sheet" id="shCx"><div class="panel" id="pnCx"></div></div>
 <div class="sheet" id="shSt"><div class="panel" id="pnSt"></div></div>
@@ -158,9 +175,9 @@ main.wrap{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>window.APP_PAGE = "painel";</script>
-<script src="config.js?v=8"></script>
-<script src="art.js?v=8"></script>
-<script src="store.js?v=8"></script>
+<script src="config.js?v=9"></script>
+<script src="art.js?v=9"></script>
+<script src="store.js?v=9"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
@@ -256,7 +273,7 @@ function setup() {
   let seg = "hamburgueria", cor = Store.MODELOS.hamburgueria.cor;
   const draw = () => {
     $("#root").innerHTML = `<div class="gate"><div class="gbox">
-      <img src="icon.svg?v=8" alt="" width="44" height="44" style="border-radius:12px;display:block;margin-bottom:14px">
+      <img src="icon.svg?v=9" alt="" width="44" height="44" style="border-radius:12px;display:block;margin-bottom:14px">
       <h1>Vamos montar seu cardápio</h1><p class="muted" style="margin-top:6px">Leva 1 minuto. Tudo pode ser mudado depois no painel.</p>
       <label class="f">Nome da loja</label><input class="i" id="sNome" placeholder="Ex.: Burger do Zé" value="${esc(window._sn || "")}">
       <label class="f">WhatsApp que vai receber os pedidos</label><input class="i" id="sWa" inputmode="tel" placeholder="(00) 9 0000-0000" value="${esc(window._sw || "")}">
@@ -305,7 +322,7 @@ function loginNuvem() {
   aplicarCor("#ff5a1f");
   const criar = modoLogin === "criar";
   $("#root").innerHTML = `<div class="gate"><div class="gbox" style="text-align:center">
-    <img src="icon.svg?v=8" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto">
+    <img src="icon.svg?v=9" alt="Cardápio Direto" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto">
     <p style="font-weight:800;margin-top:10px;letter-spacing:-.01em">Cardápio Direto</p>
     <h1 style="margin-top:14px">${criar ? "Crie sua loja" : "Entrar no painel"}</h1>
     <p class="muted">${criar ? "Cardápio digital com pedidos no WhatsApp. 3 dias grátis." : "Use o e-mail e a senha da sua loja"}</p>
@@ -349,7 +366,7 @@ function app() {
   D = Store.get(); aplicarCor(D.loja.cor);
   $("#root").innerHTML = `
   <header class="top"><div class="wrap"><div style="min-width:0"><h1 id="tNome"></h1><small id="tSub">Painel da loja</small></div>
-    <button class="stbtn" id="stBtn"><i></i><span></span></button></div></header>
+    <button class="ajb" id="ajBtn" aria-label="Como usar">?</button><button class="stbtn" id="stBtn"><i></i><span></span></button></div></header>
   ${DEMO() ? `<div style="background:color-mix(in srgb,var(--warn) 16%,transparent);color:#ffd27a;font-size:.8rem;font-weight:600;text-align:center;padding:8px 16px">Painel de demonstração · o que você mudar fica só neste celular</div>` : `<div id="assBar"></div>`}
   <main class="wrap" id="main"></main>
   <nav class="nav">
@@ -368,6 +385,7 @@ function app() {
     document.querySelectorAll("[data-tab]").forEach((x) => x.classList.toggle("on", x === b)); window.scrollTo(0, 0); renderTab();
   });
   $("#stBtn").onclick = abrirStatusLoja;
+  $("#ajBtn").onclick = () => abrirAjuda();
   renderTopo(); renderTab();
   seen = new Set(Store.pedidos().map((p) => p.id)); iniciado = true;
   if (!window._ouvindo) {
@@ -423,7 +441,7 @@ function renderPedidos() {
   const all = Store.pedidos();
   const ativos = all.filter((p) => ["novo", "preparo", "saiu", "pronto"].includes(p.status));
   const list = filtro === "ativos" ? ativos : filtro === "fin" ? all.filter((p) => ["entregue", "cancelado"].includes(p.status)).slice(0, 60) : all.slice(0, 80);
-  $("#main").innerHTML = `
+  $("#main").innerHTML = `${passosHtml()}
     <div class="chips"><button class="chip ${filtro === "ativos" ? "on" : ""}" data-f="ativos">Em andamento<em>${ativos.length}</em></button>
       <button class="chip ${filtro === "fin" ? "on" : ""}" data-f="fin">Finalizados</button><button class="chip ${filtro === "todos" ? "on" : ""}" data-f="todos">Todos</button></div>
     ${PRO() && !caixaAberto() ? `<button class="card" id="irCaixa" style="width:100%;text-align:left;display:flex;gap:10px;align-items:center;margin-top:10px;border-color:color-mix(in srgb,var(--warn) 40%,var(--line))"><span style="font-size:1.3rem">💰</span><span style="flex:1"><b>Caixa fechado</b><br><small class="muted">Toque pra abrir o caixa do dia</small></span><span class="muted">›</span></button>` : ""}
@@ -431,6 +449,7 @@ function renderPedidos() {
     ${list.length ? list.map(cardPedido).join("") : `<div class="empty">${filtro === "ativos" ? "Nenhum pedido em andamento.<br>Quando chegar um, toca um alarme aqui 🔔<br><br><small>Deixe esta tela aberta no celular ou computador da loja.</small>" : "Nada por aqui ainda."}</div>`}`;
   document.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { filtro = b.dataset.f; renderPedidos(); });
   $("#novoMan").onclick = pedidoManual;
+  ligarPassos();
   $("#abrirKds").onclick = abrirCozinha;
   if ($("#irCaixa")) $("#irCaixa").onclick = () => irPara("caixa");
   document.querySelectorAll("[data-st]").forEach((b) => b.onclick = () => mudarStatus(b.dataset.st, b.dataset.to));
@@ -604,6 +623,7 @@ function editarProduto(id, catId) {
       if (P.estoque === 0) P.ativo = false;
       D = Store.get(); const i = D.produtos.findIndex((x) => x.id === P.id);
       if (i >= 0) D.produtos[i] = P; else D.produtos.push(P);
+      D.loja.passos = { ...(D.loja.passos || {}), produtos: true };
       if (Store.save(D)) { fechar("shEd"); toast("Produto salvo"); renderCardapio(); }
     };
     if ($("#eDup")) $("#eDup").onclick = () => { D = Store.get(); const c = { ...clone(orig), id: Store.uid(), nome: orig.nome + " (cópia)", grupos: orig.grupos.map((g) => ({ ...clone(g), id: Store.uid() })) }; D.produtos.splice(D.produtos.findIndex((x) => x.id === orig.id) + 1, 0, c); Store.save(D); fechar("shEd"); toast("Produto duplicado"); renderCardapio(); editarProduto(c.id); };
@@ -622,6 +642,7 @@ $("#saveBtn").onclick = () => {
   if (soDig(F.whats).length < 10) return toast("WhatsApp da loja inválido");
   if (!Store.nuvem && !/^\d{4,6}$/.test(String(F.pin))) return toast("O PIN precisa ter de 4 a 6 números");
   F.taxas = F.taxas.filter((t) => t.bairro.trim());
+  F.passos = { ...(F.passos || {}), loja: true };
   const d = Store.get(); d.loja = clone(F);
   if (Store.save(d)) { D = d; sujo = false; mostrarSave(false); aplicarCor(F.cor); renderTopo(); toast("Alterações salvas ✓"); renderLoja(); }
 };
@@ -632,7 +653,7 @@ function renderLoja() {
   const link = location.href.replace(/admin\.html.*$/, "") + (Store.nuvem ? "?l=" + Store.id : "");
   const CORES = ["#ff5a1f", "#d62828", "#e09f00", "#2d9b4a", "#1d7fd6", "#7b2cbf", "#e5387e", "#8d5524", "#111111"];
   $("#main").innerHTML = `
-  <div class="secT"><h2>Identidade</h2></div><div class="card">
+  <div class="secT" id="sec-identidade"><h2>Identidade</h2></div><div class="card">
     <div class="upl"><div class="lg">${Store.img(F.logo) ? `<img src="${Store.img(F.logo)}">` : esc(F.nome[0] || "?")}</div>
       <div style="display:flex;flex-direction:column;gap:8px"><button class="mini" id="lLogo">📷 ${F.logo ? "Trocar logo" : "Enviar logo"}</button>${F.logo ? `<button class="mini red" id="lSemLogo">Tirar logo</button>` : ""}</div></div>
     ${I("nome", "Nome da loja")}${I("slogan", "Frase curta (aparece embaixo do nome)", "Ex.: O melhor smash da cidade")}
@@ -640,17 +661,28 @@ function renderLoja() {
     <label class="f">Tipo de negócio</label><select class="i" data-b="segmento">${Object.entries(Store.MODELOS).map(([k, m]) => `<option value="${k}" ${F.segmento === k ? "selected" : ""}>${m.nome}</option>`).join("")}</select>
   </div>
 
+  <div class="secT" id="sec-aparencia"><h2>Aparência do cardápio</h2><a class="mini" href="${esc(link)}" target="_blank" rel="noopener">Ver ↗</a></div><div class="card">
+    <label class="f" style="margin-top:0">Estilo</label>
+    <div class="temas">${[["escuro", "Escuro", "#0f0d0c", "#1d1916", "#f6efe9"], ["claro", "Claro", "#f7f5f2", "#ffffff", "#1d1916"], ["creme", "Creme", "#f6efe3", "#fffaf2", "#2b2118"]].map(([k, n, bg, cd, tx]) => `<button class="tema ${(F.tema || "escuro") === k ? "on" : ""}" data-ap="tema" data-v="${k}"><span class="tv" style="background:${bg}"><i style="background:${F.cor}"></i><em style="background:${cd};border-color:${tx}22"></em><em style="background:${cd};border-color:${tx}22"></em></span>${n}</button>`).join("")}</div>
+    <label class="f">Letra</label>
+    <div class="seg">${[["moderna", "Moderna", "Outfit"], ["elegante", "Elegante", "Playfair Display"], ["divertida", "Divertida", "Fredoka"]].map(([k, n, ff]) => `<button data-ap="fonte" data-v="${k}" class="${(F.fonte || "moderna") === k ? "on" : ""}" style="font-family:'${ff}',sans-serif">${n}</button>`).join("")}</div>
+    <label class="f">Como mostrar os produtos</label>
+    <div class="seg">${[["lista", "☰ Lista"], ["grade", "▦ Grade com fotos"]].map(([k, n]) => `<button data-ap="layout" data-v="${k}" class="${(F.layout || "lista") === k ? "on" : ""}">${n}</button>`).join("")}</div>
+    <p class="hint">"Grade" mostra as fotos grandes, 2 por linha. Fica ótimo quando todos os produtos têm foto.</p>
+    ${T("destaques", "Mostrar destaques no topo", "Os produtos com etiqueta (ex.: Mais vendido) aparecem num carrossel no começo do cardápio")}
+  </div>
+
   <div class="secT"><h2>Contato</h2></div><div class="card">
     ${I("whats", "WhatsApp que recebe os pedidos", "(00) 9 0000-0000", DEMO() ? 'inputmode="tel" readonly style="opacity:.6"' : 'inputmode="tel"')}${DEMO() ? `<p class="hint">Na demonstração o WhatsApp não pode ser trocado.</p>` : ""}${I("endereco", "Endereço da loja", "Rua, número - bairro")}${I("cidade", "Cidade", "Usada no mapa das entregas")}${I("instagram", "Instagram", "@sualoja")}
   </div>
 
-  <div class="secT"><h2>Horário de funcionamento</h2></div><div class="card">
+  <div class="secT" id="sec-horario"><h2>Horário de funcionamento</h2></div><div class="card">
     <p class="hint" style="margin-top:0">No modo automático a loja abre e fecha sozinha nesses horários. Se fechar depois da meia-noite, é só colocar (ex.: 18:00 às 02:00).</p>
     ${F.horarios.map((h, i) => `<div class="hr ${h.ativo ? "" : "off"}"><button class="tg ${h.ativo ? "on" : ""}" data-hd="${i}" style="width:40px;height:24px"></button><span>${DIAS[h.d].slice(0,3)}</span><div class="tm"><input class="i" type="time" data-hh="${i}.abre" value="${h.abre}"><input class="i" type="time" data-hh="${i}.fecha" value="${h.fecha}"></div></div>`).join("")}
     ${T("agendamento", "Aceitar pedidos agendados", "Quando estiver fechado, o cliente agenda para o próximo horário")}
   </div>
 
-  <div class="secT"><h2>Entrega e retirada</h2></div><div class="card">
+  <div class="secT" id="sec-entrega"><h2>Entrega e retirada</h2></div><div class="card">
     ${T("entrega", "Faz entrega")}${F.entrega ? I("tempoEntrega", "Tempo de entrega", "Ex.: 40–60 min") : ""}
     ${T("retirada", "Cliente pode retirar no local")}${F.retirada ? I("tempoRetirada", "Tempo para retirada", "Ex.: 20 min") : ""}
     ${T("consumoLocal", "Pedido para comer no local", "Ex.: cliente na mesa pede pelo celular")}
@@ -660,7 +692,7 @@ function renderLoja() {
         `<div style="margin-top:8px">${F.taxas.map((t, i) => `<div class="orow"><input class="i" data-tx="${i}.bairro" value="${esc(t.bairro)}" placeholder="Bairro"><input class="i" data-tx="${i}.valor" inputmode="decimal" value="${String(t.valor).replace(".", ",")}" placeholder="R$"><button class="ib" data-txx="${i}">${ICO.del}</button></div>`).join("")}<button class="mini" id="txAdd" style="margin-top:8px">+ bairro</button></div>`}` : ""}
   </div>
 
-  <div class="secT"><h2>Pagamento</h2></div><div class="card">
+  <div class="secT" id="sec-pagamento"><h2>Pagamento</h2></div><div class="card">
     ${T("pix", "Pix")}${F.pix ? I("chavePix", "Chave Pix (vai junto na mensagem do pedido)", "CPF, e-mail, telefone ou aleatória") + I("nomePix", "Nome do recebedor", "Opcional") : ""}
     ${T("dinheiro", "Dinheiro", "Pergunta se precisa de troco")}${T("cartao", "Cartão na entrega", "Maquininha")}
   </div>
@@ -699,7 +731,7 @@ function renderLoja() {
     <button class="mini" id="sair" style="margin-top:12px">Sair do painel neste aparelho</button>
   </div>
 
-  <div class="secT"><h2>Divulgar o cardápio</h2></div><div class="card">
+  <div class="secT" id="sec-divulgar"><h2>Divulgar o cardápio</h2></div><div class="card">
     <label class="f" style="margin-top:0">Link do cardápio</label>
     <div class="linkbox"><input class="i" readonly value="${esc(link)}" id="lnk"><button class="btn ghost" id="cpy" style="padding:10px 14px">Copiar</button></div>
     <p class="hint">Coloque na bio do Instagram, no status e na resposta automática do WhatsApp Business.</p>
@@ -712,6 +744,7 @@ function renderLoja() {
   <div style="height:70px"></div>`;
   const m = $("#main");
   m.querySelectorAll("[data-b]").forEach((i) => i.oninput = i.onchange = () => { let v = i.value; if (["pedidoMinimo", "taxaFixa"].includes(i.dataset.b)) v = num(v); setP(F, i.dataset.b, v); marcar(); if (i.dataset.b === "nome") { const lg = m.querySelector(".lg"); if (lg && !F.logo) lg.textContent = v[0] || "?"; } });
+  m.querySelectorAll("[data-ap]").forEach((b) => b.onclick = () => { F[b.dataset.ap] = b.dataset.v; F.passos = { ...(F.passos || {}), aparencia: true }; marcar(); renderLoja(); });
   m.querySelectorAll("[data-tg]").forEach((b) => b.onclick = () => { setP(F, b.dataset.tg, !getP(F, b.dataset.tg)); marcar(); renderLoja(); });
   m.querySelectorAll("[data-hd]").forEach((b) => b.onclick = () => { const h = F.horarios[+b.dataset.hd]; h.ativo = !h.ativo; marcar(); renderLoja(); });
   m.querySelectorAll("[data-hh]").forEach((i) => i.onchange = () => { const [x, k] = i.dataset.hh.split("."); F.horarios[+x][k] = i.value; marcar(); });
@@ -732,7 +765,8 @@ function renderLoja() {
   m.querySelectorAll("[data-sldel]").forEach((b) => b.onclick = () => { F.slides.splice(+b.dataset.sldel, 1); marcar(); renderLoja(); });
   m.querySelectorAll("[data-slup]").forEach((b) => b.onclick = () => { const i = +b.dataset.slup; if (i > 0) { [F.slides[i - 1], F.slides[i]] = [F.slides[i], F.slides[i - 1]]; marcar(); renderLoja(); } });
   m.querySelectorAll("[data-sl]").forEach((i) => i.oninput = i.onchange = () => { const [x, k] = i.dataset.sl.split("."); F.slides[+x][k] = i.value; marcar(); });
-  $("#cpy").onclick = async () => { try { await navigator.clipboard.writeText(link); toast("Link copiado"); } catch (e) { $("#lnk").select(); toast("Selecione e copie o link"); } };
+  const divulgou = () => { const d = Store.get(); if ((d.loja.passos || {}).divulgou) return; d.loja.passos = { ...(d.loja.passos || {}), divulgou: true }; Store.save(d); if (F) F.passos = { ...(F.passos || {}), divulgou: true }; };
+  $("#cpy").onclick = async () => { divulgou(); try { await navigator.clipboard.writeText(link); toast("Link copiado"); } catch (e) { $("#lnk").select(); toast("Selecione e copie o link"); } };
   try { if (window.QRCode) new QRCode($("#qr"), { text: link, width: 150, height: 150 }); else $("#qr").classList.add("hidden"); } catch (e) { $("#qr").classList.add("hidden"); }
   if (!$("#bkExp")) return;
   $("#bkExp").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([Store.exportar()], { type: "application/json" })); a.download = `backup-${(D.loja.nome || "loja").toLowerCase().replace(/\W+/g, "-")}-${new Date().toISOString().slice(0, 10)}.json`; a.click(); toast("Backup baixado"); };
@@ -770,6 +804,56 @@ function renderCupons() {
 }
 
 
+
+
+// ================= PRIMEIROS PASSOS E AJUDA =================
+function listaPassos() {
+  const d = Store.get(), L = d.loja, ps = L.passos || {};
+  return [
+    ["logo", "Coloque a logo da loja", "Fica no topo do cardápio e passa confiança", !!L.logo, "loja", "sec-identidade"],
+    ["produtos", "Confira seus produtos e preços", "Edite, apague ou crie os itens do seu cardápio", !!ps.produtos, "cardapio", ""],
+    ["fotos", "Coloque foto em pelo menos 3 produtos", "Produto com foto vende muito mais", d.produtos.filter((p) => p.foto).length >= 3, "cardapio", ""],
+    ["loja", "Horário, entrega e Pix", "Dias que abre, taxa por bairro e sua chave Pix", !!ps.loja, "loja", "sec-horario"],
+    ["aparencia", "Escolha a cara do cardápio", "Cor, estilo claro ou escuro, letra e fotos em grade", !!ps.aparencia, "loja", "sec-aparencia"],
+    ["teste", "Faça um pedido de teste", "Abra seu cardápio e peça como se fosse cliente", Store.pedidos().length > 0, "teste", ""],
+    ["divulgou", "Divulgue seu link", "Copie o link e coloque no Instagram e no WhatsApp", !!ps.divulgou, "loja", "sec-divulgar"],
+  ];
+}
+function passosHtml() {
+  const L = Store.get().loja; if ((L.passos || {}).oculto) return "";
+  const ls = listaPassos(), ok = ls.filter((x) => x[3]).length;
+  return `<div class="card passos"><div class="line" style="padding:0"><b>🚀 Deixe sua loja pronta</b><span class="muted" style="font-size:.85rem">${ok} de ${ls.length}</span></div>
+    <div class="barra"><i style="width:${Math.round(ok / ls.length * 100)}%"></i></div>
+    ${ls.map(([k, t, sub, feito]) => `<button class="pss ${feito ? "ok" : ""}" data-ps="${k}"><span class="pc">${feito ? "✓" : ""}</span><span class="pt"><b>${t}</b><small>${sub}</small></span>${feito ? "" : `<span class="pg">Fazer ›</span>`}</button>`).join("")}
+    <div style="display:flex;gap:8px;margin-top:10px"><button class="mini" id="psAj">📖 Como usar o painel</button><button class="mini" id="psHide" style="margin-left:auto">${ok === ls.length ? "Concluir 🎉" : "Esconder"}</button></div></div>`;
+}
+function irSec(tabk, id) { irPara(tabk); if (id) setTimeout(() => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }, 200); }
+function ligarPassos() {
+  document.querySelectorAll("[data-ps]").forEach((b) => b.onclick = () => {
+    const it = listaPassos().find((x) => x[0] === b.dataset.ps); if (!it) return;
+    if (it[4] === "teste") { window.open(location.href.replace(/admin\.html.*$/, "") + (Store.nuvem ? "?l=" + Store.id : ""), "_blank"); toast("Faça um pedido no cardápio que abriu"); return; }
+    if (it[0] === "produtos") { const d = Store.get(); d.loja.passos = { ...(d.loja.passos || {}), produtos: true }; Store.save(d); }
+    irSec(it[4], it[5]);
+  });
+  if ($("#psAj")) $("#psAj").onclick = () => abrirAjuda();
+  if ($("#psHide")) $("#psHide").onclick = async () => { if (!(await confirmar("Esconder o passo a passo? Você pode ver o tutorial a qualquer hora no botão ? lá em cima.", "Esconder"))) return; const d = Store.get(); d.loja.passos = { ...(d.loja.passos || {}), oculto: true }; Store.save(d); renderPedidos(); };
+}
+const AJUDA = [
+  ["🧾", "Pedidos", "Quando um cliente faz pedido pelo seu link, ele aparece aqui e toca um alarme. Deixe esta tela aberta no celular ou no computador da loja.", ["Toque em <b>Aceitar e preparar</b> pra avisar que começou.", "Depois em <b>Saiu pra entrega</b> (ou Pronto pra retirar) e por fim <b>Finalizar</b>.", "O cliente vê cada mudança no celular dele. Use <b>💬 Avisar cliente</b> pra mandar a mensagem pronta no WhatsApp.", "<b>+ Pedido balcão</b> lança pedidos feitos por telefone ou no balcão.", "<b>👨‍🍳 Tela da cozinha</b> mostra os pedidos grandes pro chapeiro."]],
+  ["📋", "Cardápio", "Aqui você monta tudo que vende.", ["Crie <b>categorias</b> (Lanches, Pizzas, Bebidas...) e os <b>produtos</b> dentro delas.", "Em cada produto: foto, descrição, preço e <b>opções</b> (ponto da carne, tamanho, sabores, adicionais pagos).", "Pizza meio a meio: crie o grupo \"Sabores\" com máximo 2 e escolha <b>Cobra o maior</b>.", "Acabou um item? Desligue a chave que ele aparece como <b>esgotado</b>.", "Pode controlar <b>estoque</b>: ele baixa sozinho a cada pedido."]],
+  ["🏪", "Loja", "As informações e a cara do seu cardápio.", ["Logo, nome, cor e o <b>estilo</b> (escuro, claro ou creme).", "<b>Horários</b>: com o modo automático a loja abre e fecha sozinha.", "<b>Entrega</b>: taxa por bairro ou valor fixo, pedido mínimo.", "<b>Pagamento</b>: Pix (a chave vai junto na mensagem), dinheiro com troco e cartão.", "Sempre toque em <b>Salvar alterações</b> no fim."]],
+  ["🍽️", "Mesas", "Para quem atende no salão.", ["Diga quantas mesas tem e imprima os <b>QR Codes</b> pra colocar no porta-guardanapo.", "O cliente lê o QR, pede pelo celular e o pedido cai aqui com o número da mesa.", "O garçom também pode <b>lançar itens</b> na mesa.", "No fim, <b>Fechar conta</b>: com 10% opcional e divisão entre as pessoas."]],
+  ["💰", "Caixa", "Controle do dinheiro do dia.", ["<b>Abra o caixa</b> no começo do expediente com o troco da gaveta.", "Lance <b>sangria</b> (tirou dinheiro), <b>suprimento</b> (colocou) e <b>despesas</b>.", "No fim, <b>Fechar caixa</b>: conte o dinheiro e o sistema mostra se bateu, faltou ou sobrou."]],
+  ["🎟️", "Cupons e Resumo", "Promoções e números da loja.", ["Crie cupons de % ou valor em R$, com pedido mínimo. O cliente digita na sacola.", "No <b>Resumo</b>: faturamento, ticket médio, mais vendidos, despesas e lista de clientes pra chamar no WhatsApp."]],
+  ["📣", "Dicas pra vender mais", "O que mais funciona na prática.", ["Coloque o link na <b>bio do Instagram</b> e na <b>resposta automática</b> do WhatsApp Business.", "Poste o link no <b>status</b> todo dia no horário do almoço e do jantar.", "Cole o <b>QR Code</b> no balcão e coloque um papelzinho em cada entrega.", "Use <b>fotos de verdade</b> dos seus produtos, de dia, perto da janela.", "Crie um cupom de boas-vindas (ex.: PRIMEIRA10) pra quem pede pelo link."]],
+];
+function abrirAjuda(i) {
+  $("#pnAj").innerHTML = `<div class="phead"><button class="x" data-x="shAj">←</button><h3>Como usar o painel</h3></div><div class="pbody">
+    <p class="muted" style="margin-top:14px;font-size:.9rem">Toque em cada parte pra ver o passo a passo.</p>
+    ${AJUDA.map(([ic, t, sub, its], k) => `<details class="aj" ${k === i ? "open" : ""}><summary><span>${ic}</span><b>${t}</b></summary><p>${sub}</p><ol>${its.map((x) => `<li>${x}</li>`).join("")}</ol></details>`).join("")}
+    <a class="btn full green" style="margin:18px 0" href="https://wa.me/5533998628718?text=${encodeURIComponent("Oi! Tenho uma dúvida sobre o painel da minha loja.")}" target="_blank" rel="noopener">💬 Falar com o suporte</a></div>`;
+  abrir("shAj"); $("#pnAj").scrollTop = 0;
+}
 
 // ================= MESAS E COMANDAS =================
 const nMesas = () => Math.max(0, Math.min(200, parseInt(D.loja.mesas) || 0));

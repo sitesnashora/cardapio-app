@@ -6,13 +6,13 @@
 <title>Cardápio</title>
 <meta name="theme-color" content="#0f0d0c">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg?v=8" type="image/svg+xml">
+<link rel="icon" href="icon.svg?v=9" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="app.css?v=8">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=9">
 <style>
 .hero{position:relative;padding:18px 0 16px;background:radial-gradient(120% 120% at 100% 0%,color-mix(in srgb,var(--brand) 30%,transparent),transparent 60%),var(--bg)}
 .hrow{display:flex;gap:14px;align-items:center}
@@ -28,14 +28,14 @@
 .aviso{margin-top:12px;background:color-mix(in srgb,var(--warn) 14%,transparent);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);color:#ffd27a;border-radius:13px;padding:10px 12px;font-size:.86rem;font-weight:600}
 .banner{margin-top:14px;border-radius:var(--r);padding:14px 16px;background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 40%,#000),color-mix(in srgb,var(--brand) 10%,#000));border:1px solid color-mix(in srgb,var(--brand) 50%,transparent)}
 .banner b{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#fff;opacity:.9}
-.banner p{font-weight:600;margin-top:3px}
+.banner p{font-weight:600;margin-top:3px;color:#fff}
 .repeat{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
 .repeat b{display:block}.repeat small{color:var(--muted);font-size:.8rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw}
 .repeat .go{margin-left:auto;background:var(--brand);color:#fff;font-weight:700;padding:8px 12px;border-radius:10px;font-size:.85rem;flex:none}
 .search{margin-top:14px;position:relative}
 .search input{padding-left:40px}
 .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted)}
-.cats{position:sticky;top:0;z-index:20;background:rgba(15,13,12,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.cats{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .cats .wrap{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;scrollbar-width:none}
 .cats .wrap::-webkit-scrollbar{display:none}
 .cat{flex:none;padding:8px 14px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:.86rem;color:var(--muted)}
@@ -115,7 +115,7 @@
 .done h3{font-size:1.4rem;margin-top:14px}
 .setup{min-height:100vh;display:grid;place-items:center;text-align:center;padding:30px}
 .capa{height:170px;position:relative;background:var(--card2) center/cover no-repeat}
-.capa::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,13,12,.15),rgba(15,13,12,.55) 60%,var(--bg))}
+.capa::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 15%,transparent),color-mix(in srgb,var(--bg) 55%,transparent) 60%,var(--bg))}
 .hero.comcapa{padding-top:0;margin-top:-58px;position:relative;z-index:2;background:none}
 .minhas{position:absolute;top:calc(12px + env(safe-area-inset-top));right:max(14px, env(safe-area-inset-right));z-index:5;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-weight:700;font-size:.8rem;padding:8px 12px;border-radius:99px}
 .slides{margin-top:14px;position:relative}
@@ -155,6 +155,34 @@ body.combarra .fab{bottom:calc(86px + env(safe-area-inset-bottom))}
 .chatin .btn{padding:12px 16px}
 .dig{display:inline-flex;gap:4px}.dig i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:pul 1s infinite}.dig i:nth-child(2){animation-delay:.15s}.dig i:nth-child(3){animation-delay:.3s}
 @keyframes pul{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ===== temas ===== */
+:root[data-tema=claro]{color-scheme:light;--bg:#f7f5f2;--bg2:#ffffff;--card:#ffffff;--card2:#efebe6;--line:#e4ddd5;--ink:#1d1916;--muted:#766b62}
+:root[data-tema=creme]{color-scheme:light;--bg:#f6efe3;--bg2:#fffaf2;--card:#fffaf2;--card2:#ede1cd;--line:#e1d2bb;--ink:#2b2118;--muted:#86725c}
+:root[data-tema=claro] .aviso,:root[data-tema=creme] .aviso{color:#8a5a00}
+:root[data-tema=claro] .pill,:root[data-tema=creme] .pill{color:#1d8a4c}
+:root[data-tema=claro] .pill.off,:root[data-tema=creme] .pill.off{color:#c0392b}
+:root[data-tema=claro] .okmsg,:root[data-tema=creme] .okmsg{color:#1d8a4c}
+:root[data-tema=claro] .prod,:root[data-tema=creme] .prod{border-color:var(--line)}
+:root[data-tema=claro] .bar button,:root[data-tema=creme] .bar button{box-shadow:0 10px 30px rgba(0,0,0,.18)}
+:root[data-fonte=elegante] h1,:root[data-fonte=elegante] .sec h2,:root[data-fonte=elegante] .pd h3,:root[data-fonte=elegante] .prod b,:root[data-fonte=elegante] .dest b{font-family:"Playfair Display",Georgia,serif;letter-spacing:0}
+:root[data-fonte=divertida] body{font-family:"Fredoka","Outfit",system-ui,sans-serif}
+/* grade */
+.grade .sec{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grade .sec h2{grid-column:1/-1;margin-bottom:0}
+.grade .prod{flex-direction:column-reverse;gap:0;padding:0;border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.grade .prod .ph{width:100%;height:auto;aspect-ratio:1/1;border-radius:0}
+.grade .prod .tx{padding:10px 12px 12px;width:100%}
+.grade .prod b{font-size:.95rem}
+.grade .prod p{font-size:.78rem;-webkit-line-clamp:2}
+/* destaques */
+.dest{margin-top:18px}
+.dest h3{font-size:1rem;font-weight:800;margin-bottom:8px}
+.dtrack{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;scroll-snap-type:x mandatory}
+.dtrack::-webkit-scrollbar{display:none}
+.dcard{flex:0 0 138px;scroll-snap-align:start;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.dcard .ph{width:100%;aspect-ratio:1/1;position:relative}
+.dcard .dx{padding:8px 10px 10px}.dcard b{display:block;font-size:.88rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dcard .dx span{font-weight:700;font-size:.85rem;color:var(--brand)}
 </style>
 </head>
 <body>
@@ -174,10 +202,10 @@ body.combarra .fab{bottom:calc(86px + env(safe-area-inset-bottom))}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>window.APP_PAGE = "cardapio";</script>
-<script src="config.js?v=8"></script>
-<script src="art.js?v=8"></script>
-<script src="store.js?v=8"></script>
-<script src="atendente.js?v=8"></script>
+<script src="config.js?v=9"></script>
+<script src="art.js?v=9"></script>
+<script src="store.js?v=9"></script>
+<script src="atendente.js?v=9"></script>
 <script>
 const $ = (s, r = document) => r.querySelector(s);
 let D = null;                 // dados da loja
@@ -197,16 +225,18 @@ function render() {
   D = Store.get();
   if (Store.nuvem && (!Store.lojaExiste() || !Store.situacao().ativa)) {
     document.title = D ? D.loja.nome : "Cardápio";
-    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg?v=8" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">${!Store.lojaExiste() ? "Loja não encontrada" : esc(D.loja.nome)}</h2><p class="muted" style="margin-top:6px">${!Store.lojaExiste() ? "Confira se o link está certo." : "O cardápio está temporariamente fora do ar."}</p>${Store.lojaExiste() && D && D.loja.whats ? `<a class="btn green" style="margin-top:20px" href="https://wa.me/${waNum(D.loja.whats)}" target="_blank" rel="noopener">Pedir pelo WhatsApp</a>` : ""}</div></div>`;
+    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg?v=9" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">${!Store.lojaExiste() ? "Loja não encontrada" : esc(D.loja.nome)}</h2><p class="muted" style="margin-top:6px">${!Store.lojaExiste() ? "Confira se o link está certo." : "O cardápio está temporariamente fora do ar."}</p>${Store.lojaExiste() && D && D.loja.whats ? `<a class="btn green" style="margin-top:20px" href="https://wa.me/${waNum(D.loja.whats)}" target="_blank" rel="noopener">Pedir pelo WhatsApp</a>` : ""}</div></div>`;
     $("#fab").classList.add("hidden"); renderBar(); return;
   }
   if (!D) {
     document.title = "Cardápio";
-    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg?v=8" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">Cardápio em breve</h2><p class="muted" style="margin-top:6px">Esta loja ainda está montando o cardápio. Volte daqui a pouco!</p></div></div>`;
+    $("#root").innerHTML = `<div class="setup"><div><img src="icon.svg?v=9" alt="" width="64" height="64" style="border-radius:18px;display:block;margin:0 auto"><h2 style="margin-top:16px">Cardápio em breve</h2><p class="muted" style="margin-top:6px">Esta loja ainda está montando o cardápio. Volte daqui a pouco!</p></div></div>`;
     return;
   }
   const L = D.loja, st = statusLoja(L);
   aplicarCor(L.cor);
+  const R = document.documentElement; R.dataset.tema = L.tema || "escuro"; R.dataset.fonte = L.fonte || "moderna";
+  const mt = document.querySelector('meta[name="theme-color"]'); if (mt) mt.content = getComputedStyle(R).getPropertyValue("--bg").trim() || "#0f0d0c";
   document.title = L.nome + " · Cardápio";
   const prods = D.produtos;
   const cl = Store.cliente();
@@ -243,8 +273,9 @@ function render() {
     <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <input class="i" id="busca" placeholder="Buscar no cardápio" value="${esc(window._busca || "")}" autocomplete="off"></div>
   </div></header>
+  ${!q && L.destaques !== false ? (() => { const ds = prods.filter((p) => p.ativo && p.tag); return ds.length ? `<div class="wrap dest"><h3>⭐ Destaques</h3><div class="dtrack">${ds.map((p) => `<button class="dcard" data-p="${p.id}"><div class="ph">${fotoProduto(p)}${p.tag ? `<span class="tag">${esc(p.tag)}</span>` : ""}</div><div class="dx"><b>${esc(p.nome)}</b><span>${Number(p.preco) > 0 ? brl(p.preco) : "Monte o seu"}</span></div></button>`).join("")}</div></div>` : ""; })() : ""}
   <nav class="cats"><div class="wrap">${D.categorias.filter((c) => prods.some((p) => p.cat === c.id)).map((c, i) => `<button class="cat ${i ? "" : "on"}" data-cat="${c.id}">${esc(c.nome)}</button>`).join("")}</div></nav>
-  <main class="wrap">${secs || `<p class="empty">Nada encontrado.</p>`}
+  <main class="wrap ${L.layout === "grade" ? "grade" : ""}">${secs || `<p class="empty">Nada encontrado.</p>`}
     <p class="foot">${L.instagram ? `<a href="https://instagram.com/${esc(L.instagram.replace("@", ""))}" target="_blank" rel="noopener">${esc(L.instagram)}</a> · ` : ""}${L.whats ? `WhatsApp ${fone(L.whats)}` : ""}</p>
   </main>`;
   const b = $("#busca");
